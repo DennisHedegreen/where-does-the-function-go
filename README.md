@@ -8,6 +8,7 @@ By Dennis Hedegreen, Hedegreen Research.
 
 - [Companion article — Article 200](https://hedegreenresearch.com/articles/where-does-the-function-go/)
 - [Working paper — Camelot MI-001 v0.8, frozen scientific baseline](https://hedegreenresearch.com/assets/camelot/reports/model-internals/where-does-the-function-go/model-internals__intl__2026-09__i001__v0-8__draft.pdf)
+- [Current paper — v0.9 documentation revision](https://hedegreenresearch.com/assets/camelot/reports/model-internals/where-does-the-function-go/model-internals__intl__2026-09__i001__v0-9__draft.pdf)
 - [Protocol and unresolved decisions](protocol/README.md)
 - [Methods and implementation limits](docs/METHOD.md)
 - [RunPod preparation](docs/RUNPOD.md)
