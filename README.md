@@ -2,7 +2,7 @@
 
 Pre-results research software for testing whether a language-model function can recover under a persistent constraint, and how to distinguish existing backup routes from training-dependent change.
 
-**Status: experimental scaffolding. The research hypothesis has not been tested by this repository.** The CPU fixture suite covers M0–M3. A passing fixture is not successful H-Neuron replication, a real Gate 0 pass, a validated CoAx benchmark, or evidence of functional reconstitution.
+**Status: experimental scaffolding. The research hypothesis has not been tested by this repository.** The CPU fixture suite covers M0–M3 and synthetic source-intake audits. A passing fixture is not successful H-Neuron replication, a real Gate 0 pass, a validated CoAx benchmark, or evidence of functional reconstitution.
 
 By Dennis Hedegreen, Hedegreen Research.
 
@@ -22,7 +22,19 @@ By Dennis Hedegreen, Hedegreen Research.
 | M2 persistent mask | Gated-MLP input hook, gradient behavior, checkpoint reload, write-once t0 | Target Llama architecture/runtime and real phenotype checks |
 | M3 backup audit | Paired-count effects, supplied interval/power checks, nested pools, conservative label logic | CoAx reference replication, actual power/CI estimation and candidate-pool design |
 
-The initial CPU suite contains **47 tests**. No model weights or benchmark datasets are included. Commands do not launch training, call a judge API, start a cloud machine, or purchase compute.
+The CPU suite contains **68 tests**. No model weights or benchmark datasets are included. Commands do not launch training, call a judge API, start a cloud machine, or purchase compute.
+
+## Source-intake audits
+
+The local preparation layer now checks complete activation-file intake and layer-major feature order against the pinned upstream loader. Missing files fail instead of silently shrinking the cohort. Synthetic CETT tests exercise upstream hooks and arithmetic in float32/bfloat16. An exact source-loop test reproduces stale-data reuse when a complementary answer region is missing; our helper rejects that case.
+
+The provisional eligibility preflight retains exclusion reasons and per-split denominators, rejects ID/prompt leakage, and flags repeated or out-of-output matches. It accepts synthetic data only. These helpers are Python APIs, not a complete empirical extraction command.
+
+- [CETT and token-region audit](docs/CETT-REGION-AUDIT.md)
+- [Provisional eligibility contract](docs/ELIGIBILITY-CONTRACT.md)
+- [Observed model/dataset revisions and open access questions](docs/REGISTRY-REVIEW.md)
+
+Observed registry revisions do not imply approved dataset choices or authenticated model access. RunPod has not been provisioned or validated.
 
 ## Quick start — CPU fixtures
 
@@ -38,7 +50,7 @@ python -m pip install --no-deps .
 python -m unittest discover -s tests -v
 ```
 
-PyTorch in `requirements-cpu.txt` is explicitly CPU-only. These pins describe the fixture environment; they are not a validated CUDA environment for the full experiment. For provenance/Gate 0/backup validators alone, installing this package supplies jsonschema; NumPy is needed for source-equivalence tests and PyTorch for M2.
+PyTorch in `requirements-cpu.txt` is explicitly CPU-only. These pins describe the fixture environment; they are not a validated CUDA environment for the full experiment. For provenance/Gate 0/backup validators alone, installing this package supplies jsonschema; NumPy is needed for activation intake/source-equivalence tests and PyTorch for M2 and CETT helpers.
 
 ```bash
 wdfg verify-package protocol

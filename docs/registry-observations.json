@@ -1,0 +1,64 @@
+{
+  "checked_at": "2026-09-23T12:11:07.798667+00:00",
+  "status": "observed_candidates_not_empirical_freeze",
+  "account_access_verified": false,
+  "items": [
+    {
+      "kind": "models",
+      "id": "meta-llama/Llama-3.1-8B-Instruct",
+      "url": "https://huggingface.co/api/models/meta-llama/Llama-3.1-8B-Instruct",
+      "revision": "0e9e39f249a16976918f6564b8830bc894c89659",
+      "gated": "manual",
+      "private": false,
+      "license": "llama3.1",
+      "sha256": "e9e2b49cfbb9d41ca7b8594748b8cc0cec5cc54edd5344a5fa25d0d576bee194"
+    },
+    {
+      "kind": "datasets",
+      "id": "mandarjoshi/trivia_qa",
+      "url": "https://huggingface.co/api/datasets/mandarjoshi/trivia_qa",
+      "revision": "0f7faf33a3908546c6fd5b73a660e0f8ff173c2f",
+      "gated": false,
+      "private": false,
+      "license": [
+        "unknown"
+      ],
+      "sha256": "8d2d76ea801b35e98cd7f56b9932153fc44106f319772c0c5c09f7952ae64299"
+    },
+    {
+      "kind": "datasets",
+      "id": "Salesforce/FaithEval-counterfactual-v1.0",
+      "url": "https://huggingface.co/api/datasets/Salesforce/FaithEval-counterfactual-v1.0",
+      "revision": "e655f7c8750aabe431eeeda63fa5c019a2567b18",
+      "gated": false,
+      "private": false,
+      "license": null,
+      "sha256": "d89d59492d1b908cc2337d78717a6f22ce59467f234cbb8e667e53439fbd01d8"
+    },
+    {
+      "kind": "datasets",
+      "id": "google-research-datasets/nq_open",
+      "url": "https://huggingface.co/api/datasets/google-research-datasets/nq_open",
+      "revision": "5dd9790a83002ad084ddeb7c420dc716852c6f28",
+      "gated": false,
+      "private": false,
+      "license": [
+        "cc-by-sa-3.0"
+      ],
+      "sha256": "f4227025357a9ec1afec13faa7e23d3ec0ad694a7b62aed03a50f49e1e8a0fe2"
+    },
+    {
+      "kind": "datasets",
+      "id": "Salesforce/wikitext",
+      "url": "https://huggingface.co/api/datasets/Salesforce/wikitext",
+      "revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+      "gated": false,
+      "private": false,
+      "license": [
+        "cc-by-sa-3.0",
+        "gfdl"
+      ],
+      "sha256": "0d6c13b9824a82772cca2a2fa4481fe1c13701da16aeafb9ac99a1ce161505b5"
+    }
+  ]
+}
