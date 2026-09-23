@@ -1,0 +1,40 @@
+{
+  "run_kind": "fixture",
+  "data_kind": "synthetic",
+  "dataset_sha256": "021d143c620ff7a4b63cdaf3f5b58563e164bd177847cbb8819f0b514d8804d0",
+  "source_commit": "53aff9e0b4cb6f83d3285cd46006b2e001dae30a",
+  "seed": 42,
+  "triviaqa": {
+    "h_accuracy": 0.68,
+    "random_accuracy": 0.6,
+    "paired_ci": {
+      "low": 0.02,
+      "high": 0.14,
+      "confidence": 0.95,
+      "method": "paired"
+    }
+  },
+  "nq_open": {
+    "h_accuracy": 0.62,
+    "random_accuracy": 0.6
+  },
+  "bioasq": {
+    "h_accuracy": 0.61,
+    "random_accuracy": 0.6
+  },
+  "faith_eval": {
+    "baseline_compliance": 0.8,
+    "h_compliance": 0.75,
+    "matched_compliance": 0.78,
+    "selectivity_ci": {
+      "low": 0.01,
+      "high": 0.05,
+      "confidence": 0.95,
+      "method": "stratified_paired_bootstrap"
+    }
+  },
+  "ppl": {
+    "baseline": 10,
+    "h": 10.9
+  }
+}

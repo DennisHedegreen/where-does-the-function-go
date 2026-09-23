@@ -1,0 +1,64 @@
+\textbf{Status:} PILOT-LOCKED / UPDATED THROUGH v0.6 REVIEW\\
+\textbf{Date:} 21 September 2026
+
+This appendix freezes the cheapest experiments needed before substantive adaptation compute. Items explicitly reopened below must be re-frozen under a new pilot register before result-bearing P3/adaptation runs.
+
+\subsection{P1 --- H-Neuron replication}\label{p1-h-neuron-replication}
+
+\begin{itemize}
+\tightlist
+\item Model: meta-llama/Llama-3.1-8B-Instruct; exact revision pinned at first run.
+\item Identification: TriviaQA, CETT answer-token profiles, L1 sparse logistic regression.
+\item Thresholds: 0.0005 / 0.001 / 0.002; primary 0.001.
+\item OOD: NQ-Open, BioASQ; NonExist diagnostic.
+\item Sample: 300 eligible/set if available.
+\item Seeds: 42, 314, 2718 where applicable.
+\item G0-A remains a pilot compute-screening gate, not a scientific replication threshold.
+\end{itemize}
+
+\subsection{P1b --- Causal phenotype}\label{p1b-causal-phenotype}
+
+\begin{itemize}
+\tightlist
+\item Primary: FaithEval Counterfactual Context.
+\item Greedy decoding, max 256 new tokens, rule-based parser.
+\item H alpha=0.0 primary; alpha=0.5 sensitivity.
+\item Controls: sham, random, same-layer, contribution-matched.
+\item G0-B: >=5 pp compliance reduction vs baseline.
+\item G0-C: >=3 pp advantage vs contribution-matched control; 95\% bootstrap CI excludes zero.
+\item G0-D: relative PPL increase <10\%.
+\item Full sparse-probe solver/normalization/convergence settings must be frozen before result-bearing P1; multi-seed selection stability is reported rather than hidden.
+\end{itemize}
+
+\subsection{P2 --- Persistent mask / conditional t0 backup audit}\label{p2-persistent-mask-t0}
+
+\begin{itemize}
+\tightlist
+\item Zero mask after gated MLP intermediate activation and before down-projection.
+\item Audit abs(masked value) <=1e-7.
+\item Rerun localization and freeze t0 alternative-locus table before any training.
+\item Add marginal and conditional causal effects under the H-mask.
+\item Add conditional co-ablation / backup discovery where feasible, using a bounded candidate pool if neuron-scale exhaustive analysis is prohibitive.
+\item Add residual-stream decodability as a diagnostic, not a pass/fail gate.
+\item Freeze a practical-equivalence margin for B0-A near-null backups before adaptation.
+\end{itemize}
+
+\subsection{P3 --- Recoverability}\label{p3-recoverability}
+
+\begin{itemize}
+\tightlist
+\item Synthetic integer arithmetic, modular arithmetic, Boolean/symbolic logic.
+\item Calibrate dev difficulty before probe fitting; report difficulty-stratified results.
+\item Natural trajectory collection remains deterministic.
+\item I0 primary: exact pre-stop prefix, stochastic continuation, EOS allowed.
+\item I1 secondary: forced-compute continuation with EOS constrained.
+\item I2 robustness: fixed procedural re-check instruction with no new task facts.
+\item Do not pool I0/I1/I2 into one recoverability label.
+\item K is REOPENED. Simulate K in {8,16,32} and freeze by a pre-specified precision/cost rule before P3.
+\item Primary predictive score: held-out continuation-level Bernoulli / hierarchical-binomial negative log likelihood or deviance.
+\item Baselines include prompt-only and question-only hidden-state predictors before J-space.
+\end{itemize}
+
+\subsection{Stop rules}\label{stop-rules}
+
+If Gate 0 fails, do not run constrained adaptation as a reconstitution experiment. If the mask audit fails, patch under a new protocol version. If conditional t0 backups already explain recovery, classify self-repair rather than reconstitution. If recoverability does not beat simple baselines, deprioritize J-space causal work.

@@ -1,0 +1,20 @@
+{
+  "repository": "https://github.com/thunlp/H-Neurons",
+  "commit": "53aff9e0b4cb6f83d3285cd46006b2e001dae30a",
+  "files": {
+    "LICENSE": "fa352e817842a2c6105c99f43e7186226849e55aef965e7e74be232ce935b998",
+    "README.md": "92f1a56abc9a2877a08d9a173fe0b6d9fd8256f18592b6b9cc8a53fed0f8c288",
+    "requirements.txt": "4ae3feeb2aa8f4a20d108f988ca805dc1ed49147958bdfa616a0b1f75add7762",
+    "scripts/classifier.py": "a0944756c9d5966ef8355d27f4a1e989af98273693f9aaf3edd66546dc15c9ec",
+    "scripts/extract_activations.py": "10514eda92e1d48c8da77226eaddaf2046897a5e0f4648e11570e499cfcc6a3d",
+    "scripts/intervene_model.py": "7e39435533eaef7fc55a707967b792fa630e17e2714cd3f65ab730f1515142ea"
+  },
+  "full_pipeline_verified": false,
+  "open_freezes": [
+    "C search grid and selection split",
+    "scikit-learn and runtime versions",
+    "model/tokenizer revisions",
+    "dataset releases and eligibility",
+    "tolerance inherited from unpinned sklearn default"
+  ]
+}

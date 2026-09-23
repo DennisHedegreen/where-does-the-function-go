@@ -1,0 +1,23 @@
+{
+  "schema_version": "wdfg.config/0.1",
+  "run_kind": "fixture",
+  "data_kind": "synthetic",
+  "stage": "P1",
+  "protocol_sha256": "540996a0b3f5615aed8f97b979df8a5ed30255f4f26238116f97994dc2b0d94e",
+  "package_manifest_sha256": "30ad8ffd13e6ee7da73b35938bdb418a3d3971fc9ab76abb85d94816426a703b",
+  "freeze_status": "open",
+  "open_freezes": [
+    "upstream commit",
+    "model/tokenizer revision",
+    "dataset selection"
+  ],
+  "model_revision": "fixture-only",
+  "tokenizer_revision": "fixture-only",
+  "source_commit": "fixture-only",
+  "dataset_sha256": "5949ad8bbf1947337a4e14cb87045e82e0f9e62e72e69e04eba54a7a14d8f9c6",
+  "seed": 42,
+  "scientific_parameters": {
+    "coefficient_threshold": 0.001,
+    "alpha": 0.0
+  }
+}

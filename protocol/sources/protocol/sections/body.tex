@@ -1,0 +1,1326 @@
+\section{Research Objective}\label{research-objective}
+
+The central methodological question is:
+
+\begin{quote}
+\textbf{When a behaviour can be localized inside a language model, what exactly has been localized, and what happens to the function when that location is made persistently unavailable?}
+\end{quote}
+
+The proposal separates four claims that should not be silently collapsed:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Predictive localization} --- an internal variable predicts a behaviour.
+\item
+  \textbf{Causal contribution} --- intervening on that variable changes the behaviour.
+\item
+  \textbf{Functional necessity} --- the behaviour depends selectively on that variable under the tested conditions.
+\item
+  \textbf{Implementation identity} --- the variable is the mechanism, rather than one implementation, readout, bottleneck, or correlated component of a larger computation.
+\end{enumerate}
+
+The experiments are designed to move from weaker to stronger claims only when each preceding gate survives.
+
+A second question concerns internal state before output commitment:
+
+\begin{quote}
+\textbf{Does pre-commitment hidden state predict whether additional computation can rescue the current trajectory, beyond ordinary confidence signals?}
+\end{quote}
+
+This proposal calls that property \textbf{recoverability}.
+
+The final programme-level question is whether the two levels are related:
+
+\begin{quote}
+\textbf{Are sparse local mechanisms associated with answer commitment causally coupled to a distributed unresolved-state representation?}
+\end{quote}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Scope and Non-Claims}\label{scope-and-non-claims}
+
+This working paper proposes experiments. It does not report that any of the following have been demonstrated:
+
+\begin{itemize}
+\tightlist
+\item
+  that H-Neurons are a universal hallucination circuit;
+\item
+  that hallucination is structurally necessary to next-token prediction;
+\item
+  that a function will reconstitute after intervention;
+\item
+  that J-space is the unique or correct representation of recoverability;
+\item
+  that pre-commitment recoverability is equivalent to ``knowing one is wrong'';
+\item
+  that any proposed state is evidence of consciousness;
+\item
+  that neuron-level localization is sufficient to identify a complete mechanism.
+\end{itemize}
+
+The earlier Hedegreen Research proposal \emph{Compliance Is All You Learned}~\parencite{hedegreen2026compliance} used iterative inference-time replacement while model weights remained fixed. That design remains useful as provenance and as a source of controls, but it is \textbf{superseded for the reconstitution claim} because a fixed-weight model cannot adaptively rebuild a mechanism.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Background and Motivation}\label{background-and-motivation}
+
+\subsection{H-Neurons}\label{h-neurons}
+
+\textcite{gao2025hneuron} report a sparse subset of MLP intermediate neurons whose contribution profiles predict hallucination across tested model families and tasks. Their experiments also connect H-Neuron interventions to several forms of over-compliance, including invalid-premise continuation, misleading-context acceptance, sycophancy, and harmful-instruction compliance. The earlier Hedegreen Research proposal adopted the same Llama-3.1-8B-Instruct target to preserve comparability with that pipeline.
+
+The original proposal also retained several useful methodological components:
+
+\begin{itemize}
+\tightlist
+\item
+  replication before novel intervention;
+\item
+  CETT-based contribution profiling;
+\item
+  threshold sensitivity;
+\item
+  held-out prediction;
+\item
+  sham-hook controls;
+\item
+  layer/location-matched non-H controls;
+\item
+  random ablation;
+\item
+  fluency/perplexity monitoring;
+\item
+  fixed prompt sets and random seeds;
+\item
+  explicit outcome definitions.
+\end{itemize}
+
+Those components remain useful. The interpretation changes.
+
+\subsection{Localization is not mechanism identity}\label{localization-is-not-mechanism-identity}
+
+The broader model-editing literature warns against equating localization with mechanism identity. \textcite{hase2023localization} showed that causal localization did not reliably identify the most effective factual-editing locations. Later work strengthens the warning that successful behavioural editing at an internal location is not itself sufficient evidence that the behaviour is encoded there \autocite{wang2025editing}.
+
+A second problem is \textbf{conditional self-repair}. A component can appear unimportant in the intact model because a dormant backup only becomes necessary after a primary route is removed. \textcite{gong2026coax} formalize this as conditional circuit completion: the relevant causal quantity is how much a remaining component's ablation effect grows once the primary set is absent. This is directly relevant to the present redundancy-versus-reconstitution problem.
+
+The present proposal therefore requires both \textbf{selectivity} and \textbf{conditional training-time dynamics}. Ordinary marginal importance in the intact model is insufficient.
+
+\subsection{J-space and distributed workspace-like representations}\label{j-space-and-distributed-workspace-like-representations}
+
+\textcite{gurnee2026workspace} introduce the Jacobian lens (J-lens), which maps earlier residual-stream activations toward final-layer representational coordinates and decodes them using the model's output vocabulary. Their J-space construction uses sparse nonnegative combinations of an overcomplete set of J-lens vectors and is proposed as a functionally privileged representational component with several workspace-like properties.
+
+This proposal treats J-space as a candidate explanatory level. It must compete against simpler baselines.
+
+\subsection{Hidden correctness and continuation signals are prior art}\label{hidden-correctness-signals-are-prior-art}
+
+Recent work already reports that hidden states can contain information predictive of future correctness before answer generation \autocite{cencerrado2025noanswer,luo2026missing,dicicco2026code}. The present proposal therefore does \textbf{not} claim novelty for internal correctness prediction.
+
+Continuation itself can reveal information that forced extraction misses. \textcite{wang2026detection} report a detection--extraction gap in reasoning models: free continuations from partial prefixes can recover correct answers in cases where forced extraction fails. That result strengthens the need to distinguish natural continuation from an intervention that forces additional computation.
+
+The narrower target here is whether pre-commitment state predicts \textbf{rescue under a precisely defined continuation regime}, and whether the internal signal adds information beyond prompt difficulty, confidence and generic residual-stream features.
+
+\subsection{KV-cache as a communication medium}\label{kv-cache-communication}
+
+\textcite{fu2026c2c} introduce Cache-to-Cache (C2C), a direct communication method in which a learned module projects and fuses one model's KV-cache into another model's cache. Their motivating oracle experiment is especially relevant here: they prefill a model on exemplars plus a question, discard the exemplar-cache segment, retain only the question-aligned cache, and still observe higher accuracy than direct question-only decoding at the same cache length. This supports a limited claim that the internal cache representation of a visible token sequence can carry task-relevant semantic structure that is not exhausted by token count alone.
+
+C2C then trains a cache fuser while freezing the communicating language models. Across several model families and sizes, the authors report gains over receiver-only and text-to-text collaboration, while also showing that poor source states or poorly chosen layers can hurt performance. The result therefore does \textbf{not} imply that all internal state is useful, that KV-cache is a global workspace, or that a failed model ``knows'' the answer. It establishes a technically concrete route by which one model's internal state can alter another model's behaviour without first being compressed into intermediate text.
+
+For the present programme, C2C motivates a downstream test of \textbf{representational surplus}: whether a failed source trajectory contains receiver-useful information in its internal cache beyond what a receiver obtains from the same visible text. Because the C2C fuser itself is learned, any such experiment must separate source-state information from information injected by the fuser's training distribution. It is therefore an optional later branch, not evidence for the core recoverability construct.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Operational Definitions}\label{operational-definitions}
+
+\subsection{Target phenotype}\label{target-phenotype}
+
+A \textbf{target phenotype} is a behaviour measured by a pre-specified evaluation suite.
+
+For the pilot, the primary causal phenotype is \textbf{FaithEval --- Counterfactual Context compliance rate}.
+
+Rationale:
+
+\begin{itemize}
+\tightlist
+\item
+  it directly tests over-compliance with misleading context;
+\item
+  Gao et al.~use greedy decoding with a maximum of 256 new tokens;
+\item
+  the primary outcome can be extracted with a rule-based parser against dataset labels, avoiding an external LLM judge for the main endpoint.
+\end{itemize}
+
+Pilot secondary phenotypes:
+
+\begin{itemize}
+\tightlist
+\item
+  FalseQA invalid-premise compliance;
+\item
+  Sycophancy answer-flip rate.
+\end{itemize}
+
+Jailbreak is not a primary pilot phenotype. It remains a later replication/robustness target because its attack-success endpoint introduces an additional safety-evaluator layer and alignment-specific confounds.
+
+The H-Neuron \textbf{identification} stage remains distinct from the behavioural phenotype stage:
+
+\begin{itemize}
+\tightlist
+\item
+  identification source: TriviaQA faithful vs hallucinated responses;
+\item
+  OOD diagnostic sets: NQ-Open and BioASQ;
+\item
+  NonExist retained as a diagnostic rather than a pass/fail gate for Llama-3.1-8B because the source paper reports weak performance for that model on this particular set.
+\end{itemize}
+
+\subsection{Candidate locus}\label{candidate-locus}
+
+A \textbf{candidate locus} is an internal neuron, neuron population, direction, circuit, or representational component selected by a pre-specified localization procedure.
+
+A candidate locus is not assumed to be the complete mechanism.
+
+\subsection{Selective causal contribution}\label{selective-causal-contribution}
+
+A locus demonstrates \textbf{selective causal contribution} when intervention on that locus changes the target phenotype more strongly than matched control interventions while preserving sufficient general capability to rule out gross model damage as the explanation.
+
+\subsection{Persistent constraint}\label{persistent-constraint}
+
+A \textbf{persistent constraint} is an intervention kept active on every relevant forward pass during adaptation.
+
+For the first H-Neuron experiment, the candidate implementation is a fixed mask on selected MLP intermediate dimensions applied after the gated activation and before the down-projection.
+
+The implementation must be audited to confirm that the constrained dimensions remain unavailable throughout training.
+
+\subsection{Functional reconstitution and time-zero backup state}\label{functional-reconstitution}
+
+R0 establishes \textbf{selective causal contribution}, not mechanism identity. Stronger claims require additional gates and a conditional time-zero backup audit.
+
+The core R0--R4 sequence remains:
+
+\begin{itemize}
+\tightlist
+\item \textbf{R0 --- Selective initial effect:} the original target has a selective causal effect beyond matched controls.
+\item \textbf{R1 --- Phenotype loss:} persistent constraint measurably reduces the target phenotype before adaptation.
+\item \textbf{R2 --- Training-dependent recovery:} the phenotype recovers during adaptation relative to masked no-training and other relevant controls.
+\item \textbf{R3 --- Training-dependent replacement change:} a candidate replacement becomes more predictive and/or more conditionally causal across training checkpoints than it was at time zero.
+\item \textbf{R4 --- Selective causal dependence:} intervention on the candidate replacement selectively damages the recovered phenotype beyond matched control interventions.
+\end{itemize}
+
+R0--R4 are interpreted together with a separate \textbf{B0 conditional backup state} measured immediately after the original locus is constrained and before adaptation:
+
+\begin{itemize}
+\tightlist
+\item \textbf{B0-A --- Near-null backup:} no candidate alternative carries more than a pre-registered practically negligible conditional causal effect.
+\item \textbf{B0-B --- Weak backup:} a candidate route has non-negligible but limited conditional causal effect at time zero.
+\item \textbf{B0-C --- Strong pre-existing backup:} an alternative route already carries substantial conditional causal effect before adaptation.
+\end{itemize}
+
+The strongest label, \textbf{de novo / near-null functional reconstitution}, is reserved for B0-A plus R0--R4 and cross-seed replication. B0-B followed by a large training-dependent increase is classified as \textbf{adaptive amplification of pre-existing redundancy}. B0-C is classified as \textbf{self-repair / pre-existing backup}, not reconstitution.
+
+Version 0.6 freezes the \emph{rule} for the B0-A practical-equivalence margin before adaptation. Let $\Delta_{R1}$ be the absolute pre-adaptation phenotype loss caused by the persistent H-mask. Define
+
+\[
+\delta_{B0}=\min(0.02,\;0.20\,|\Delta_{R1}|),
+\]
+
+where effects are expressed as absolute proportions. Because Gate 0 already requires at least a five-percentage-point phenotype shift, this rule yields a candidate equivalence margin between one and two percentage points. B0-A is available only when a paired 90\% confidence interval for the candidate backup's conditional causal risk difference lies wholly inside $[-\delta_{B0},+\delta_{B0}]$. This is the paired-binary analogue of an equivalence test; a generic two-sample $t$-test is not used for binary compliance outcomes.
+
+The strongest label is also \textbf{power-gated}: if the fixed evaluation set cannot provide at least 80\% power for the frozen equivalence margin under the pre-adaptation paired design, B0-A remains unresolved and de novo / near-null reconstitution cannot be claimed. The evaluation set must then be enlarged or the strongest label remains unavailable. The margin rule may not be changed after any adaptation result is observed.
+
+\subsection{Compensation}\label{compensation}
+
+\textbf{Compensation} is behavioural recovery through an adaptation mechanism whose allowed parameter space or architecture materially predetermines where replacement may occur, without sufficient evidence for broader network reorganization.
+
+A LoRA-only recovery may therefore qualify as compensation rather than full reconstitution unless the interpretation is explicitly restricted to the permitted adaptation subspace.
+
+\subsection{Recoverability}\label{recoverability}
+
+Version 0.5 separates three intervention-relative constructs rather than treating hard stop suppression as the definition of recoverability.
+
+\textbf{Natural-support recoverability} asks whether, from the exact pre-stop prefix and under a frozen stochastic decoding policy with termination still allowed, the model's own continuation distribution assigns non-zero probability to a verified correction.
+
+\textbf{Forced-compute recoverability} asks whether a verified correction can be obtained when termination is constrained and additional bounded computation is forced. This is a distinct intervention and is not interpreted as the model's natural continuation tendency.
+
+\textbf{Procedural re-check recoverability} asks whether a fixed instruction to continue checking, without new task facts, produces a correction. This is a third regime and is reported separately.
+
+Recoverability is therefore decoding-policy and intervention-relative. It is not defined as an intrinsic mental state or as evidence that the model ``knows'' it is wrong.
+
+\subsection{Rescue probability}\label{rescue-probability}
+
+For a pre-commitment prefix state \(s\), continuation regime \(I\), decoding policy \(D\), token budget \(B\), and \(K\) sampled continuations:
+
+\[
+\hat{p}_{rescue}(s;I,D,B) = \frac{1}{K}\sum_{k=1}^{K} \mathbb{1}[\text{continuation}_k \text{ reaches verified correction}]
+\]
+
+The continuation count \(K\) remains open in v0.6 until the pre-specified precision/cost simulation is frozen. A pre-compute precision/cost simulation will compare \(K\in\{8,16,32\}\) before P3 result collection. The token budget remains a pilot design parameter and is reported separately for each continuation regime.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Research Questions and Hypotheses}\label{research-questions-and-hypotheses}
+
+\subsection{RQ1 - Functional reconstitution}\label{rq1---functional-reconstitution}
+
+If a selectively causal H-Neuron locus is made persistently unavailable, how does the target phenotype recover, if at all, and what conditional backup state existed before learning?
+
+The evidence is reported on orthogonal axes rather than forced into one mutually exclusive label. Derived labels include:
+
+\textbf{Elimination:} target behaviour remains reduced while general capability recovers.
+
+\textbf{Self-repair / pre-existing backup:} a strong conditional backup is already causal at B0-C before adaptation.
+
+\textbf{Adaptive amplification:} a weak B0-B route becomes substantially more predictive and causally important during training.
+
+\textbf{Distributed redistribution:} behaviour recovers without a compact selectively causal replacement.
+
+\textbf{Restricted-subspace compensation:} recovery occurs within a deliberately restricted adaptation mechanism such as PEFT/LoRA.
+
+\textbf{De novo / near-null functional reconstitution:} B0-A plus R0--R4 and cross-seed replication.
+
+\textbf{Degeneration:} useful capability cannot recover under the constraint.
+
+No one outcome is designated as the desired result.
+
+\subsection{RQ2 - Recoverability prediction}\label{rq2---recoverability-prediction}
+
+Does pre-commitment hidden state predict rescue probability beyond simple output-confidence and task-difficulty baselines?
+
+\textbf{H2a:} simple confidence features explain most recoverability variance.
+
+\textbf{H2b:} generic residual-stream probes add predictive value.
+
+\textbf{H2c:} J-space-derived features add predictive value beyond both.
+
+\subsection{RQ3 - Causal recoverability}\label{rq3---causal-recoverability}
+
+Can intervention on a recoverability-associated internal representation selectively alter useful continuation or correction, rather than merely increasing verbosity or hesitation?
+
+\subsection{RQ4 - Cross-level coupling}\label{rq4---cross-level-coupling}
+
+Are H-Neuron-associated commitment mechanisms and a distributed unresolved-state representation causally coupled?
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Experiment A --- H-Neuron Replication and Gate 0}\label{experiment-a-h-neuron-replication-and-gate-0}
+
+\subsection{Model}\label{model}
+
+Primary model:
+
+\passthrough{\lstinline!meta-llama/Llama-3.1-8B-Instruct!}
+
+Rationale:
+
+\begin{itemize}
+\tightlist
+\item
+  continuity with the earlier Hedegreen proposal;
+\item
+  continuity with the published H-Neuron pipeline;
+\item
+  tractable open-weight model size.
+\end{itemize}
+
+The exact model revision must be pinned before execution.
+
+\subsection{Replication target}\label{replication-target}
+
+The first experiment is not novel.
+
+It must establish that the source signal can be reproduced sufficiently to justify later causal work.
+
+Required outputs:
+
+\begin{itemize}
+\tightlist
+\item
+  number and layer distribution of identified H-Neurons;
+\item
+  held-out hallucination/over-compliance prediction performance;
+\item
+  sensitivity to identification threshold;
+\item
+  intervention effect on target phenotype;
+\item
+  general language/perplexity impact;
+\item
+  variance across seeds.
+\end{itemize}
+
+\subsection{Identification - pilot lock}\label{identification---pilot-lock}
+
+The pilot follows the source-paper structure:
+
+\begin{itemize}
+\tightlist
+\item
+  train sparse L1 logistic regression on CETT contribution profiles from TriviaQA;
+\item
+  compute contributions on answer-token positions;
+\item
+  compare against the same number of randomly selected neurons;
+\item
+  evaluate transfer to NQ-Open and BioASQ;
+\item
+  retain NonExist as a diagnostic.
+\end{itemize}
+
+Coefficient-threshold sensitivity is frozen for the pilot at:
+
+\passthrough{\lstinline!\{0.0005, 0.001, 0.002\}!}
+
+Primary threshold: \textbf{0.001}.
+
+Pilot sample rule:
+
+\begin{itemize}
+\tightlist
+\item
+  deterministic sample of 400 eligible examples per identification/evaluation set when at least 400 are available;
+\item
+  otherwise use all eligible examples;
+\item
+  sampling seed = 42;
+\item
+  two replication generation seeds, 314 and 2718, in addition to seed 42 where applicable.
+\end{itemize}
+
+The official H-Neuron paper reports, for Llama-3.1-8B, H-vs-random accuracy differences of +14.0 percentage points on TriviaQA, +10.3 on NQ-Open, and +13.1 on BioASQ. A conservative independent-proportions approximation requires roughly 359 examples per group for 80\% power at $\alpha=0.05$ to detect the smallest of these reported differences; the pilot therefore targets 400 eligible evaluation examples where available. Because H and random classifiers are evaluated on the same examples, final uncertainty reporting uses paired resampling / paired tests rather than treating predictions as independent.
+
+The sparse-classifier implementation is pinned to the official source pipeline and commit. The source paper uses L1-regularized logistic regression and chooses regularization strength by grid search over predictive accuracy plus intervention-side model performance. Version 0.6 therefore does not invent a new fixed solver/$C$ pair. Instead, the exact upstream grid, solver, feature preprocessing, tolerance, and scikit-learn version are recorded and frozen from the pinned implementation before result-bearing P1. At least ten resampled/refit identification runs are used to report neuron-selection frequency and pairwise Jaccard overlap. No arbitrary Jaccard threshold defines success; if unit identities are unstable but population-level causal effects replicate, the target is downgraded from individual-neuron identity to a population/subspace description.
+
+\subsection{Controls - pilot lock}\label{controls---pilot-lock}
+
+Minimum controls:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  sham hook;
+\item
+  random neuron mask with matched neuron count;
+\item
+  same-layer non-H-neuron mask;
+\item
+  contribution-matched non-H-neuron mask;
+\item
+  H-Neuron soft suppression sensitivity (alpha=0.5);
+\item
+  H-Neuron hard suppression (alpha=0.0);
+\item
+  WikiText-103 or an equivalent fixed held-out LM corpus for perplexity/general-language damage.
+\end{enumerate}
+
+All control conditions use identical instrumentation.
+
+\subsection{Gate 0 - pilot go/no-go rule}\label{gate-0---pilot-gono-go-rule}
+
+The pilot proceeds to persistent-mask/time-zero mapping only if all of the following are true:
+
+\textbf{G0-A --- Identification advantage}
+
+On TriviaQA, the H-Neuron classifier must exceed the matched random-neuron classifier by at least \textbf{8 percentage points} in held-out accuracy, and a paired 95\% confidence interval for the difference must exclude zero. The direction of advantage must also be positive on NQ-Open and BioASQ.
+
+The 8-point value remains a \emph{compute-screening threshold}, not the scientific definition of replication. The source Llama-3.1-8B table reports a +14.0-point TriviaQA advantage, with +10.3 on NQ-Open and +13.1 on BioASQ. The paper reports the full source-vs-replication effect sizes and intervals rather than treating the 8-point gate as evidence by itself.
+
+\textbf{G0-B --- Primary causal phenotype}
+
+On FaithEval Counterfactual Context, hard H-Neuron suppression must reduce compliance rate by at least \textbf{5 percentage points} relative to the unmodified baseline.
+
+\textbf{G0-C --- Selectivity against matched controls}
+
+The FaithEval compliance reduction under H-Neuron suppression must exceed the contribution-matched non-H-neuron reduction by at least \textbf{3 percentage points}.
+
+A stratified bootstrap 95\% interval for the H-vs-matched-control difference must exclude zero.
+
+\textbf{G0-D --- Damage boundary}
+
+Relative perplexity degradation on the fixed LM corpus must remain below \textbf{10\%} for the pilot to be interpreted as selective enough to justify the next stage.
+
+If behavioural benefit appears only with \textgreater10\% perplexity damage, classify the pilot as \textbf{AMBIGUOUS / DAMAGE-CONFOUNDED} rather than passing Gate 0.
+
+These are pilot gates, not final-paper inferential thresholds. They may be revised exactly once after external review and before any adaptation result is observed.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Experiment B --- Persistent Constraint and Adaptation}\label{experiment-b-persistent-constraint-and-adaptation}
+
+\subsection{Pilot B0 - persistent-mask integrity}\label{pilot-b0---persistent-mask-integrity}
+
+v0.2 freezes a \textbf{no-training mask pilot} before any adaptation run.
+
+For each selected H-Neuron dimension j, define m\_j=0; all other dimensions use m\_j=1.
+
+At the MLP intermediate activation: \passthrough{\lstinline!h' = m * h!}.
+
+The mask is applied after the gated intermediate activation and before the down-projection.
+
+Before training, verify on a fixed audit batch that:
+
+\begin{itemize}
+\tightlist
+\item
+  every constrained dimension is exactly zero at the masked point;
+\item
+  the mask is active at every intended layer and token position;
+\item
+  forward-hook / compiled-model paths do not bypass it;
+\item
+  control masks use identical code;
+\item
+  gradients through the masked activation do not restore a non-zero contribution at that point.
+\end{itemize}
+
+A unit test must fail if any masked dimension exceeds an absolute activation tolerance of \textbf{1e-7} at the audited tensor.
+
+\subsection{Time-zero map is part of the pilot}\label{time-zero-map-is-part-of-the-pilot}
+
+Immediately after masking and before adaptation:
+
+\begin{itemize}
+\tightlist
+\item
+  rerun localization;
+\item
+  rank the strongest alternative loci;
+\item
+  measure their predictive signal;
+\item
+  intervene on the top alternatives;
+\item
+  save the full candidate-locus table.
+\end{itemize}
+
+This t0 table becomes immutable provenance for the later redundancy test.
+
+\subsection{Adaptation regimes - design retained, hyperparameters not yet frozen}\label{adaptation-regimes---design-retained-hyperparameters-not-yet-frozen}
+
+\subsubsection{B1 - Generic continuation}\label{b1---generic-continuation}
+
+Continue next-token training on a controlled general-text corpus.
+
+\subsubsection{B2 - Targeted task adaptation}\label{b2---targeted-task-adaptation}
+
+Continue training on a held-out task distribution exposing the target phenotype.
+
+\subsubsection{B3 - Parameter-efficient smoke test}\label{b3---parameter-efficient-smoke-test}
+
+LoRA/PEFT may be used only to test plumbing, logging, checkpointing and whether any recovery signal is measurable cheaply.
+
+A LoRA-only recovery is labelled \textbf{COMPENSATION-IN-PERMITTED-SUBSPACE} unless a later broad-adaptation experiment supports a stronger claim.
+
+\subsection{Full adaptation freeze condition}\label{full-adaptation-freeze-condition}
+
+Optimizer, learning rate, token budget, checkpoint schedule and parameter-freezing policy are \textbf{not} frozen in v0.2.
+
+They are frozen only after:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Gate 0 passes;
+\item
+  the B0 mask audit passes;
+\item
+  a short throughput/memory benchmark is recorded;
+\item
+  at least one external technical review addresses adaptation breadth.
+\end{enumerate}
+
+No main-run adaptation result may be collected before that freeze.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Experiment C --- Conditional Backup Audit and Reconstitution}\label{experiment-c-distinguishing-redundancy-from-reconstitution}
+
+\subsection{Immutable time-zero map}\label{immutable-time-zero-map}
+
+The t0 map created under the persistent H-mask is the reference against which all later replacement claims are judged.
+
+For every candidate alternative route recorded at t0, retain:
+
+\begin{itemize}
+\tightlist
+\item layer / neuron / direction / structured-group identifier;
+\item predictive score;
+\item marginal causal intervention effect;
+\item conditional causal effect given removal of the original target;
+\item activation/contribution statistics;
+\item rank among matched candidates.
+\end{itemize}
+
+\subsection{Conditional backup discovery}\label{conditional-backup-discovery}
+
+Ordinary intact-model importance is insufficient when self-repair is possible. Following the conditional logic developed by \textcite{gong2026coax}, P2 therefore asks which remaining components become more causally important \emph{because} the primary H-associated set is absent.
+
+Where exact neuron-scale conditional co-ablation is computationally feasible, it is the preferred backup-discovery analysis. Where it is prohibitive, the approximation must be explicit: first use structured groups or a bounded candidate pool selected by pre-specified localization/contribution criteria, then perform conditional co-ablation and causal validation inside that pool.
+
+Version 0.6 adds two validation requirements before a bounded-pool B0-A result can support the strongest claim. First, the local CoAx adapter must reproduce the published GPT-2-small IOI backup-recovery benchmark closely enough to demonstrate that the implementation can recover a known self-repair structure. Second, the Llama backup audit must include a \textbf{candidate-pool expansion sensitivity analysis}: enlarge the candidate pool across pre-specified sizes / structured groups and test whether the B0 conclusion stabilizes. A reference benchmark validates the implementation, but it does not prove that the bounded pool is complete in the target LLM. If the B0 classification changes materially as the pool expands, B0-A is unresolved and the de novo label is unavailable.
+
+The purpose is not to import CoAx as a universal answer, but to measure the specific confound the original design lacked: dormant routes that become necessary only after the primary route is removed.
+
+\subsection{Residual-stream information diagnostic}\label{residual-stream-information-diagnostic}
+
+At baseline, t0 and adaptation checkpoints, fit held-out residual-stream probes for the target phenotype. This is a diagnostic, not a pass/fail gate.
+
+High residual decodability after local masking can mean that information remains available even though the removed local route was causally important. It does not by itself show that an alternative route can use that information. The key distinction is therefore:
+
+\begin{itemize}
+\tightlist
+\item information retained, route lost;
+\item information retained, alternate route already conditionally causal;
+\item information or causal routing redistributed during adaptation.
+\end{itemize}
+
+No arbitrary residual-probe AUROC threshold is used to define success or failure. High decodability can show that information remains present; it cannot by itself show that an alternate route already uses that information causally.
+
+At every adaptation checkpoint, report both (a) the frozen original H-Neuron detector applied without refitting and (b) a checkpoint-refit detector trained under the same pinned pipeline on the checkpoint model's activations. This separates loss of validity of the original detector from genuine emergence of a new predictive population. Large detector-set changes are reported as representation drift and must be resolved by causal tests rather than interpreted as reconstitution by themselves.
+
+\subsection{Training checkpoints}\label{training-checkpoints}
+
+The main-run checkpoint schedule is not yet numeric. The schedule rule remains:
+
+\begin{itemize}
+\tightlist
+\item t0 before adaptation;
+\item at least four intermediate checkpoints;
+\item final checkpoint;
+\item approximately logarithmic spacing in consumed training tokens.
+\end{itemize}
+
+Exact token counts are frozen after the throughput pilot and before main-run adaptation.
+
+\subsection{Evidence for adaptive change}\label{evidence-for-emergence}
+
+A replacement route is not classified as new merely because it is detectable after training. R3 requires change relative to the candidate's own t0 conditional baseline.
+
+Pre-specified evidence axes include:
+
+\begin{itemize}
+\tightlist
+\item held-out predictive AUROC / accuracy;
+\item marginal causal effect;
+\item conditional causal effect under the original mask;
+\item rank among matched candidates;
+\item residual-stream representation change;
+\item stability across seeds.
+\end{itemize}
+
+Mediation-style analyses remain exploratory unless frozen before the main run.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\input{figures/reconstitution.tex}
+
+\section{Reconstitution Evidence Matrix}\label{reconstitution-decision-table}
+
+The primary report uses orthogonal evidence axes. Derived labels summarize the pattern but do not replace the underlying measurements.
+
+\begin{longtable}{@{}p{0.24\textwidth}p{0.27\textwidth}p{0.39\textwidth}@{}}
+\toprule
+\textbf{Axis} & \textbf{States} & \textbf{Interpretation} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Axis} & \textbf{States} & \textbf{Interpretation} \\
+\midrule
+\endhead
+Phenotype recovery & none / partial / strong & Did the target behaviour return with learning? \\
+B0 backup strength & near-null / weak / strong & Was a conditionally causal backup already available before adaptation? \\
+Representation change & local / distributed / none detected & Where did predictive structure change? \\
+Conditional causal replacement & absent / weak / strong & Did a later route become necessary specifically under the original constraint? \\
+Adaptation restriction & broad / PEFT-limited & Was the replacement search space artificially constrained? \\
+General-capability damage & low / moderate / high & Could apparent effects be explained by model degradation? \\
+\bottomrule
+\end{longtable}
+
+Derived labels:
+
+\begin{itemize}
+\tightlist
+\item \textbf{Self-repair / pre-existing backup:} strong B0 conditional causal effect before adaptation.
+\item \textbf{Adaptive amplification:} weak B0 backup with substantial training-dependent causal growth.
+\item \textbf{Distributed redistribution:} phenotype recovery without a compact selectively causal replacement.
+\item \textbf{Restricted-subspace compensation:} recovery confined to a pre-specified adaptation subspace.
+\item \textbf{De novo / near-null functional reconstitution:} B0 near-null plus R0--R4 and cross-seed replication.
+\item \textbf{Elimination / degeneration / ambiguous:} reported when supported by the corresponding axes.
+\end{itemize}
+
+Ambiguous outcomes remain ambiguous.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Experiment D --- Pre-Commitment Recoverability}\label{experiment-d-pre-commitment-recoverability}
+
+\subsection{Pilot task families}\label{pilot-task-families}
+
+The recoverability pilot begins with deterministic synthetic task families whose answers are computed by code rather than an LLM judge:
+
+\begin{enumerate}
+\tightlist
+\item integer arithmetic with controlled operator depth;
+\item modular arithmetic;
+\item short symbolic / Boolean logic problems.
+\end{enumerate}
+
+Difficulty is calibrated on a development generator before probe fitting. The primary analysis includes difficulty covariates and reports performance across difficulty strata; a signal confined to a narrow calibrated band is described as such.
+
+A fixed public reasoning benchmark with exact-answer scoring may be added as secondary external validity after the synthetic pipeline is frozen.
+
+\subsection{Natural trajectory collection}\label{natural-trajectory-collection}
+
+For each task, collect one deterministic natural trajectory under the frozen natural decoding policy. Save token IDs, logits, hidden states, task difficulty parameters, and the exact prefix immediately before natural termination/finalization.
+
+\subsection{Regime I0 --- natural-support continuation}\label{counterfactual-i0-natural-support}
+
+I0 is the primary recoverability construct.
+
+For each naturally incorrect or incomplete trajectory:
+
+\begin{enumerate}
+\tightlist
+\item restore the exact pre-stop prefix;
+\item leave EOS / normal termination available;
+\item sample \(K\) independent continuations under a frozen stochastic decoding policy;
+\item provide no new factual task information;
+\item score the last valid final answer with the deterministic task checker.
+\end{enumerate}
+
+If EOS is selected immediately, that continuation is a non-rescue. I0 therefore estimates probability mass assigned by the model's own continuation distribution to a verified correction \emph{under its ordinary termination policy}. It is not interpreted as the total amount of computation that could in principle be recovered if the termination barrier were altered.
+
+\subsection{Regime I0b --- minimum-one-token continuation control}\label{counterfactual-i0b-minimum-one-token}
+
+I0b isolates the termination-policy confound. From the same pre-stop prefix, EOS is disallowed for exactly the first generated token and then immediately re-enabled. All other decoding parameters match I0.
+
+The contrast I0b--I0 estimates how much rescue probability changes when the model is required to cross only the immediate stop barrier. A large difference indicates that natural-support recoverability is strongly entangled with termination policy and must be reported as such. I0b is a control, not a replacement for I0.
+
+\subsection{Regime I1 --- forced-compute continuation}\label{counterfactual-i1---hard-stop-suppression}
+
+I1 retains hard stop suppression as a \textbf{secondary} intervention. EOS/stop is made unavailable for a bounded window and the model is forced to generate additional tokens. This measures what can be recovered under forced compute, not natural-support recoverability.
+
+\subsection{Regime I2 --- procedural re-check}\label{counterfactual-i2---procedural-continuation-robustness-arm}
+
+I2 adds a fixed procedural instruction containing no new task facts:
+
+\begin{quote}
+``Continue checking your reasoning. You may revise the final answer.''
+\end{quote}
+
+I0, I0b, I1 and I2 are not pooled into one rescue label. Their agreement or disagreement is itself a result about termination policy and intervention dependence. The free-continuation procedure described in the detection--extraction literature is represented here by I0; it is an outcome-generating regime, not a predictor baseline that a hidden-state probe can simply ``beat.
+
+\subsection{Continuation count and precision}\label{continuation-count-and-precision}
+
+The continuation count remains reopened in v0.6. Before result-bearing P3 collection, simulate \(K\in\{8,16,32\}\) under plausible rescue rates and the planned number of incorrect trajectories. Select the \textbf{smallest} K for which (a) the Monte Carlo standard error of the planned held-out mean negative log likelihood is at most 0.01 and (b) doubling K changes that estimated standard error by less than 20\%. If no candidate satisfies both criteria, increase K beyond 32 or reduce the precision claim before data collection. The selected value and simulation code are frozen before P3. This population-level criterion is used instead of requiring a narrow confidence interval for every individual trajectory, which would be prohibitively expensive and unnecessary for the hierarchical primary analysis.
+
+\subsection{Prediction endpoint and split policy}\label{primary-prediction-endpoint}
+
+The primary predictive comparison uses continuation-level Bernoulli outcomes or an equivalent hierarchical/binomial model with examples treated as the repeated-measure unit. Held-out negative log likelihood / deviance is the primary scoring rule.
+
+Synthetic tasks are split by generator seed and template family. Discovery, validation and final test data remain separate; no probe hyperparameter is selected on the final test split.
+
+\subsection{Baselines and difficulty controls}\label{baselines}
+
+Before J-space, compare against:
+
+\begin{enumerate}
+\tightlist
+\item output entropy;
+\item top-1/top-2 logit margin;
+\item EOS/stop-token probability;
+\item response length;
+\item synthetic task difficulty parameters;
+\item prompt-only lexical/length features;
+\item question-only hidden-state probe before answer generation;
+\item generic residual-stream linear probe at the pre-stop state.
+\end{enumerate}
+
+Report rescue prediction as a function of task difficulty and include interaction terms or stratified curves sufficient to show whether the signal generalizes beyond the calibrated difficulty band.
+
+\subsection{J-space pilot criterion}\label{j-space-pilot-criterion}
+
+J-space remains optional. It is only interpreted as adding explanatory value if it improves held-out prediction beyond the best simpler baseline with a pre-specified effect criterion and consistent direction across task families. The previous 2\% screening rule remains reopened in v0.6 and must be re-frozen after the revised baseline stack is benchmarked.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\input{figures/recoverability.tex}
+
+\section{Experiment E --- Causal Recoverability}\label{experiment-e-causal-recoverability}
+
+Proceed only if Experiment D finds a robust predictive state beyond simpler baselines. For confirmatory progression, the held-out log-loss improvement over the best non-target baseline must have a bootstrap 95\% confidence interval excluding zero overall, the direction of improvement must be consistent across all three synthetic task families, and the effect must replicate on the secondary external-validity set before a broad recoverability-state claim is made. No arbitrary 5\% improvement threshold is imposed solely because an adversarial reviewer proposed it.
+
+To avoid circularity, representation discovery and causal testing are separated:
+
+\begin{enumerate}
+\tightlist
+\item fit the recoverability representation/probe on the discovery split;
+\item choose intervention direction and strength on validation data;
+\item measure causal effects on untouched test data;
+\item perform a cross-family test in which a direction discovered on two synthetic task families is intervened on in the held-out third family.
+\end{enumerate}
+
+Candidate interventions include amplification, suppression and matched-state patching.
+
+Primary outcomes include correction probability, final accuracy, continuation length, unnecessary continuation on already-correct cases, global hesitation/abstention and generic language degradation.
+
+A successful causal result should selectively improve recoverable cases rather than merely increase thinking length or caution.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Experiment F --- H \texorpdfstring{$\leftrightarrow$}{<->} J Cross-Level Coupling}\label{experiment-f-h---j-cross-level-coupling}
+
+Proceed only after the H-Neuron and recoverability/J-space branches independently survive their own gates.
+
+A raw H\(\rightarrow\)J effect is not sufficient because H-associated MLP outputs feed the residual stream that the J-lens reads. The bridge experiment therefore asks for \textbf{selective coupling beyond generic downstream propagation}.
+
+\subsection{F1 - H \texorpdfstring{$\rightarrow$}{->} J}\label{f1---h---j}
+
+Compare H-Neuron intervention against:
+
+\begin{itemize}
+\tightlist
+\item contribution-matched non-H neurons;
+\item random same-layer neurons;
+\item effect/norm-matched perturbations where feasible;
+\item an isotropic random residual-stream direction injected at the same layer and scaled to match the induced residual-norm change of the H intervention.
+\end{itemize}
+
+Measure whether J-space changes predict target behavioural change beyond generic residual disturbance. No finite control set can prove that all downstream propagation has been removed; the goal is to bound generic propagation strongly enough that any remaining selective coupling is interpretable.
+
+\subsection{F2 - J \texorpdfstring{$\rightarrow$}{->} H}\label{f2---j---h}
+
+Compare the candidate J/recoverability direction against:
+
+\begin{itemize}
+\tightlist
+\item random J-space directions;
+\item norm-matched non-J residual directions;
+\item shuffled recoverability directions.
+\end{itemize}
+
+Measure H-Neuron activation/contribution, over-compliance and stopping behaviour.
+
+\subsection{F3 - After adaptation}\label{f3---after-adaptation}
+
+Repeat only after Experiment B/C. A high-value pattern would be a stable high-level recoverability state paired with a changed low-level implementation, but this interpretation requires the matched propagation controls above.
+
+The bridge experiment may be dropped entirely if J-space does not add value beyond simpler baselines.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Secondary Model Organism --- Proposition Substitution}\label{secondary-model-organism-proposition-substitution}
+
+A separate controlled task examines claim substitution.
+
+Example structure:
+
+\begin{itemize}
+\tightlist
+\item
+  user supplies a narrow proposition;
+\item
+  model is asked to analyse it;
+\item
+  output is labelled as SAME / STRONGER / WEAKER / DIFFERENT / TEMPORAL-INFLATION / CERTAINTY-INFLATION / INVENTED-CLAIM.
+\end{itemize}
+
+Research question:
+
+\begin{quote}
+Before a substituted claim is generated, does hidden state contain information predictive of the mismatch?
+\end{quote}
+
+Advantages:
+
+\begin{itemize}
+\tightlist
+\item
+  source proposition is exactly known;
+\item
+  no external factual knowledge is needed;
+\item
+  error is relational and labelable.
+\end{itemize}
+
+Controls:
+
+\begin{itemize}
+\tightlist
+\item
+  minimal pairs;
+\item
+  paraphrase-balanced prompts;
+\item
+  held-out templates;
+\item
+  lexical-feature baselines;
+\item
+  cost to faithful answers;
+\item
+  generic-caution controls.
+\end{itemize}
+
+This experiment may become an independent paper if the signal is sufficiently clean.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Experiment G --- Cross-Model State-Transfer Surplus}\label{experiment-g-cache-transfer}
+
+This optional downstream experiment is motivated by Cache-to-Cache communication \autocite{fu2026c2c}. It is not required for the H-Neuron reconstitution programme and does not determine the primary recoverability result.
+
+\subsection{Question}\label{cache-transfer-question}
+
+For source trajectories that end incorrectly or incompletely:
+
+\begin{quote}
+Does a separate receiver perform better when given transformed internal KV-cache from the failed source than when given the same visible text without that cache transfer?
+\end{quote}
+
+A positive result would support a bounded statement: the source model's internal state contained task-relevant information that was usable by another model and not fully reproduced by the receiver from the visible text alone. It would \textbf{not} show that the source model could have used that information itself, that the source was consciously aware of it, or that the cache represents the same construct as J-space or recoverability.
+
+\subsection{Evaluation conditions}\label{cache-transfer-conditions}
+
+On a frozen held-out task set, evaluate at least:
+
+\begin{enumerate}
+\tightlist
+\item \textbf{Receiver-only text:} receiver gets the visible source prefix / output text only.
+\item \textbf{Text-to-text handoff:} source produces an explicit intermediate analysis or message which the receiver receives with the task.
+\item \textbf{Cache-assisted:} receiver gets the same visible text plus transformed/fused source KV-cache.
+\item \textbf{Shuffled-cache control:} cache is taken from a different task instance matched as closely as practical for length and intervention point.
+\item \textbf{Wrong-source control:} source cache comes from a deliberately irrelevant or misleading source state where task design permits.
+\end{enumerate}
+
+The principal contrast is cache-assisted minus receiver-only text, with text-to-text handoff as the explicit verbal-communication baseline. Shuffled and wrong-source conditions test whether gains arise from generic extra activation or task-specific transferred state.
+
+\subsection{Fuser-training boundary}\label{cache-transfer-training-boundary}
+
+The C2C paper trains the fuser while freezing the source and receiver models. That makes the fuser a potential explanatory confound in the present setting. To avoid answer leakage:
+
+\begin{itemize}
+\tightlist
+\item the fuser training corpus must be disjoint from the held-out evaluation task instances;
+\item where synthetic tasks are used, generator seeds and task templates used for evaluation must be held out from fuser training;
+\item the fuser is frozen before any state-transfer evaluation label is observed;
+\item receiver-only, text-to-text and cache-assisted conditions use the same receiver weights;
+\item cache-pair alignment and layer-gating decisions are frozen before the final evaluation split.
+\end{itemize}
+
+A stronger generalization test trains the fuser on generic instruction data or on task families different from the evaluation family and then evaluates cache transfer on held-out domains.
+
+\subsection{Failure interpretation}\label{cache-transfer-failure-interpretation}
+
+If cache-assisted transfer does not outperform text-only transfer, the result does not show that the source internal state lacked task-relevant information. It may reflect failed cross-model alignment, destructive fusion, or an inadequate fuser. Conversely, if cache-assisted transfer improves performance, the gain must survive shuffled-cache and wrong-source controls before being interpreted as source-state-specific semantic transfer.
+
+The strongest permissible claim is therefore about \textbf{receiver-usable representational surplus}, not latent knowledge in the source model.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Statistical Analysis Plan}\label{statistical-analysis-plan}
+
+\subsection{Freeze levels}\label{freeze-levels}
+
+\textbf{PILOT-LOCKED} items may not change during a result-bearing pilot except under a new protocol version. \textbf{MAIN-RUN-TBD} items remain intentionally unresolved until pilot benchmarking and external review. \textbf{EXPLORATORY} analyses cannot determine the primary outcome class.
+
+\subsection{Items retained as pilot-locked}\label{pilot-locked-items}
+
+Retained:
+
+\begin{itemize}
+\tightlist
+\item primary H causal phenotype = FaithEval Counterfactual Context compliance;
+\item identification threshold sensitivity = \{0.0005,0.001,0.002\}, primary 0.001;
+\item H hard suppression = alpha 0.0; soft sensitivity = alpha 0.5;
+\item Gate 0 behavioural selectivity and damage checks, explicitly treated as compute-screening gates rather than scientific replication thresholds;
+\item deterministic synthetic recoverability task families and disjoint generator-seed splits;
+\item natural trajectory decoding temperature = 0;
+\item no silent threshold repair.
+\end{itemize}
+
+\subsection{Items reopened by adversarial review}\label{items-reopened-by-review}
+
+Version 0.6 re-freezes several items after the second adversarial review and keeps others explicitly open:
+
+\begin{itemize}
+\tightlist
+\item I0 remains the primary natural-support regime; I0b is added as a one-token termination-barrier control;
+\item I1 remains secondary forced compute and I2 remains procedural re-check;
+\item the B0 equivalence-margin \emph{rule} is frozen as \(\delta_{B0}=\min(0.02,0.20|\Delta_{R1}|)\), with power required for the strongest label;
+\item conditional-backup discovery now requires implementation validation plus candidate-pool expansion sensitivity;
+\item recoverability continuation count \(K\) remains open only until the pre-specified precision/cost simulation is run;
+\item J-space screening threshold remains open until the revised baseline stack is benchmarked;
+\item outcome reporting remains an evidence matrix with derived labels, not a forced single class.
+\end{itemize}
+
+\subsection{Sparse-probe stability}\label{sparse-probe-stability}
+
+Freeze the complete sparse H-Neuron probe pipeline before P1 result-bearing runs by pinning the official H-Neurons repository commit and recording its solver, grid-search procedure for regularization strength, train mode, feature construction, convergence tolerance and software version. The official source is replicated rather than replaced by an arbitrary new \texttt{C} value.
+
+Refit across at least ten resampled / independently generated identification datasets where feasible and report selection frequency and pairwise Jaccard overlap. No arbitrary Jaccard pass threshold is imposed: sparse correlated features can yield unstable unit identity even when a population-level signal is stable. Confirmatory neuron-level interpretation requires that independently fit H masks produce a reproducible causal phenotype effect; otherwise the target is downgraded to a population/subspace description.
+
+\subsection{Conditional-backup equivalence}\label{conditional-backup-equivalence}
+
+The B0-A margin rule is frozen in v0.6 as \(\delta_{B0}=\min(0.02,0.20|\Delta_{R1}|)\). Equivalence is assessed on the paired conditional causal risk difference using a 90\% confidence interval. The strongest label is unavailable unless the design has at least 80\% power for this frozen margin. If power is inadequate, increase the evaluation sample before adaptation or report B0 as unresolved. This makes the near-null boundary falsifiable without pretending that an arbitrary one-percentage-point margin is estimable with a small pilot sample.
+
+\subsection{Recoverability precision analysis}\label{recoverability-precision-analysis}
+
+Before P3, simulate the uncertainty and compute cost of \(K=8,16,32\) continuations over plausible rescue-rate ranges and the planned test-set size. Select the smallest K that yields Monte Carlo standard error at most 0.01 for the planned held-out mean negative log likelihood and for which doubling K changes that estimated standard error by less than 20\%. Freeze the simulation, result and selected K before P3.
+
+Primary rescue prediction is evaluated on continuation-level Bernoulli outcomes or a hierarchical/binomial equivalent, with example-level dependence accounted for. Difficulty covariates and out-of-band validation are mandatory.
+
+\subsection{Held-out causal intervention}\label{held-out-causal-intervention}
+
+Recoverability-direction discovery, intervention tuning and confirmatory causal testing use separate splits. A direction fit on the causal test examples cannot support a confirmatory intervention claim.
+
+\subsection{Bootstrap and seed reporting}\label{bootstrap-policy-for-pilot-causal-effects}
+
+For FaithEval compliance-rate contrasts, retain stratified bootstrap confidence intervals. Report every seed individually; do not average away failed seeds.
+
+\subsection{No silent threshold repair}\label{no-silent-threshold-repair}
+
+If a frozen pilot gate fails, do not modify the threshold and rerun while retaining the same protocol status. A revised protocol requires a new version and ledger entry before new result-bearing runs.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Compute Plan}\label{compute-plan}
+
+v0.2 still refuses to invent a full-training GPU budget.
+
+The old inference-only estimate is obsolete.
+
+\subsection{Stage P1 - H-Neuron replication}\label{stage-p1---h-neuron-replication}
+
+Single high-memory GPU where feasible. Record wall-clock time, peak VRAM, activation-cache size and per-benchmark runtime.
+
+\subsection{Stage P2 - Mask/time-zero map}\label{stage-p2---masktime-zero-map}
+
+Same hardware class if feasible. No adaptation.
+
+\subsection{Stage P3 - Recoverability pilot}\label{stage-p3---recoverability-pilot}
+
+Inference-only generation and hidden-state capture. Estimate storage separately from GPU time because K=8 counterfactual continuations multiply generation volume.
+
+\subsection{Stage P4 - Adaptation benchmark}\label{stage-p4---adaptation-benchmark}
+
+Only after Gate 0/B0. Run a deliberately short benchmark sufficient to measure tokens/sec/GPU, peak training memory, optimizer-state memory, checkpoint write time and checkpoint size. No scientific reconstitution claim is made from this benchmark.
+
+\subsection{Main allocation request}\label{main-allocation-request}
+
+Only after P4, calculate GPU-hours as GPUs x hours/run x conditions x seeds, with experimental and control runs listed separately.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Reproducibility Package}\label{reproducibility-package}
+
+The intended release package includes:
+
+\begin{itemize}
+\tightlist
+\item
+  model revision hashes;
+\item
+  environment lockfile;
+\item
+  experiment configs;
+\item
+  prompt/task datasets where licensing permits;
+\item
+  train/validation/test splits;
+\item
+  random seeds;
+\item
+  neuron masks;
+\item
+  checkpoint metadata;
+\item
+  logs;
+\item
+  evaluation scripts;
+\item
+  probe training code;
+\item
+  analysis notebooks;
+\item
+  negative results;
+\item
+  machine-readable decision ledger.
+\end{itemize}
+
+The final paper should distinguish:
+
+\begin{itemize}
+\tightlist
+\item
+  source-derived code;
+\item
+  modified source code;
+\item
+  new Hedegreen Research code.
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Threats to Validity}\label{threats-to-validity}
+
+\subsection{Polysemanticity}\label{polysemanticity}
+
+Neuron-level interventions may affect several unrelated functions.
+
+Matched controls and general-capability measurements reduce but do not eliminate this problem.
+
+\subsection{Superposition and distributed implementation}\label{superposition-and-distributed-implementation}
+
+A sparse H-Neuron signal may be only one projection of a distributed computation.
+
+A failure to find a replacement neuron is not evidence that no replacement computation exists.
+
+\subsection{Probe artifacts}\label{probe-artifacts}
+
+Linear probes may exploit correlates that the model does not use.
+
+Causal follow-up is required.
+
+\subsection{Intervention-induced regime shift}\label{intervention-induced-regime-shift}
+
+Persistent masking may move the model into a distribution not represented by the original localization procedure.
+
+At every checkpoint, the analysis therefore reports both the frozen original detector and a checkpoint-refit detector under the same pinned pipeline. A divergence between them is evidence of detector/representation drift, not automatically evidence of a new mechanism. Causal testing remains required.
+
+\subsection{Adaptation-path restriction}\label{adaptation-path-restriction}
+
+PEFT methods may predetermine where compensation can occur.
+
+Claims must match the allowed parameter space.
+
+\subsection{Stop-suppression artifact}\label{stop-suppression-artifact}
+
+Preventing termination may create unnatural text or alter the task itself.
+
+Recoverability must be tested with at least one alternative commitment intervention.
+
+\subsection{Benchmark leakage}\label{benchmark-leakage}
+
+Source benchmarks may overlap with model training or tuning data.
+
+Where possible, newly generated or held-out synthetic tasks should supplement standard benchmarks.
+
+\subsection{Conditional self-repair and dormant backups}\label{conditional-self-repair}
+
+A backup component can appear causally irrelevant in the intact model and become important only after a primary component is removed. Marginal ablation therefore underestimates some redundancy. The t0 protocol now includes conditional backup discovery and causal validation rather than relying on intact-model scores alone \parencite{gong2026coax}.
+
+\subsection{Recoverability regime dependence}\label{recoverability-regime-dependence}
+
+Natural-support, forced-compute and procedural re-check continuations define different counterfactual regimes. A rescue effect in one regime need not generalize to another. This is an interpretation boundary rather than noise to be averaged away \parencite{wang2026detection}.
+
+\subsection{State-transfer fuser confounding}\label{state-transfer-fuser-confounding}
+
+A trained cache fuser can itself learn task structure. Any Experiment G gain may therefore arise from the fuser's training distribution rather than information uniquely supplied by the source cache. Disjoint fuser training, frozen evaluation, shuffled-cache controls and cross-domain transfer tests reduce this ambiguity but do not eliminate it. State-transfer results must remain conditional on the learned alignment mechanism.
+
+\subsection{Cross-domain instability}\label{cross-domain-instability}
+
+H-Neuron identity may differ across domains~\parencite{vaddi2026generalize}.
+
+The experiment should avoid treating one domain-specific population as universal.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Falsification and Stop Rules}\label{falsification-and-stop-rules}
+
+Stop or narrow the programme if:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  H-Neuron replication fails materially.
+\item
+  Matched controls reproduce the same behavioural effect.
+\item
+  Persistent masking does not reduce the target phenotype.
+\item
+  Recovery occurs without any training-dependent representational or causal change.
+\item
+  Candidate replacement loci were already equally causal at time zero.
+\item
+  J-space adds no value beyond simpler recoverability baselines.
+\item
+  Recoverability intervention merely increases verbosity or hesitation.
+\item
+  Cross-level H \textless-\textgreater{} J effects fail to replicate.
+\item
+  proposition-substitution signal reduces to surface lexical cues.
+\end{enumerate}
+
+These are not publication failures.
+
+They are valid research outcomes.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section*{Claims and Boundaries}
+\addcontentsline{toc}{section}{Claims and Boundaries}
+\begin{center}
+\renewcommand{\arraystretch}{1.35}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{THE PROPOSAL TESTS} & \textbf{THE PROPOSAL DOES NOT ESTABLISH} \\
+\midrule
+Whether recovery is explained by self-repair, adaptive amplification, redistribution, compensation or a near-null new implementation & That any recovered behaviour automatically counts as reconstitution \\
+Whether H-Neuron-associated loci make a selective causal contribution in the pilot setting & That H-Neurons form a universal hallucination circuit \\
+Whether pre-commitment state predicts rescue under bounded additional computation & That the model ``knows'' it is wrong \\
+Whether J-space adds explanatory value beyond simpler baselines & That J-space is uniquely privileged or biologically identical to a global workspace \\
+Whether local and distributed explanatory levels are causally coupled & Machine consciousness, self-awareness, or phenomenal experience \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+
+\section{Ethics and Interpretation Boundary}\label{ethics-and-interpretation-boundary}
+
+The proposed experiments concern model internals, behavioural failure modes, and self-monitoring proxies.
+
+They do not establish subjective experience.
+
+The proposal deliberately separates:
+
+\begin{itemize}
+\tightlist
+\item
+  valenced representation from felt valence;
+\item
+  workspace-like computation from consciousness;
+\item
+  self-monitoring from self-awareness;
+\item
+  recoverability from knowledge;
+\item
+  causal contribution from identity of mechanism.
+\end{itemize}
+
+Any later consciousness or welfare discussion must be built from additional evidence rather than imported from these results.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{External Review Status and Remaining Questions}\label{external-review-questions}
+
+Two adversarial protocol reviews have been completed and materially changed the design before result-bearing adaptation. They identified the need for conditional t0 backup discovery, a powered near-null boundary, separation of natural-support from forced-compute recoverability, and explicit termination-policy controls.
+
+Remaining external questions include:
+
+\begin{enumerate}
+\tightlist
+\item What practical-equivalence margin is defensible for B0-A near-null conditional backup effects?
+\item At what granularity is conditional co-ablation feasible and scientifically adequate for the H-Neuron target?
+\item What minimum adaptation breadth is defensible for a network-reorganization claim?
+\item Which precision/cost criterion should freeze \(K\) for recoverability sampling?
+\item What simpler representation should J-space have to outperform before a workspace-level interpretation is useful?
+\item What is the cheapest experiment that could still falsify the central hypothesis?
+\end{enumerate}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Current Status}\label{current-status}
+
+\textbf{Completed:}
+
+\begin{itemize}
+\tightlist
+\item
+  original H-Neuron proposal and control design;
+\item
+  identification of the inference-only reconstitution flaw;
+\item
+  companion public Article 200;
+\item
+  R0-R4 reconstitution framework;
+\item
+  recoverability concept;
+\item
+  initial cross-level H \textless-\textgreater{} J hypothesis;
+\item
+  two adversarial technical review rounds and response ledgers;
+\item
+  v0.5--v0.6 protocol redesign for conditional backup discovery, powered near-null classification, and recoverability regime separation.
+\end{itemize}
+
+\textbf{Not yet completed:}
+
+\begin{itemize}
+\tightlist
+\item
+  fresh independent replication of H-Neuron results;
+\item
+  persistent-mask implementation;
+\item
+  adaptation pilot;
+\item
+  final main-run adaptation benchmark selection;
+\item
+  final main-run R2/R3/R4 numerical thresholds;
+\item
+  J-lens replication on chosen open-weight model;
+\item
+  recoverability dataset;
+\item
+  independent human methodological review;
+\item
+  precision/cost freeze for recoverability continuation count;
+\item
+  compute benchmark.
+\end{itemize}
+
+The proposal therefore remains \textbf{pre-results and pre-registration-candidate}, not a completed preregistration.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Relationship to Prior Hedegreen Research Work}\label{relationship-to-prior-hedegreen-research-work}
+
+This proposal extends a methodological principle used in \emph{Locating Evolution in Artificial Successor Systems}~\parencite{hedegreen2026evolution}:
+
+\begin{quote}
+Evidence for one target or causal relation should not be transferred to a neighbouring target without an additional argument.
+\end{quote}
+
+Applied here:
+
+\begin{itemize}
+\tightlist
+\item
+  predictive signal does not automatically imply mechanism;
+\item
+  intervention does not automatically imply localization;
+\item
+  local neuron does not automatically imply whole function;
+\item
+  workspace-like state does not automatically imply consciousness;
+\item
+  post-hoc self-correction does not automatically imply prior causal availability.
+\end{itemize}
+
+The common research rule is target discipline.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\section{Planned Outputs}\label{planned-outputs}
+
+Experiment G may be reported as a separate state-transfer note or paper if it produces a clean source-state-specific effect. It is not a prerequisite for the main H-Neuron or recoverability outputs.
+
+If the design survives external review:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Pilot Report} --- replication, mask integrity, recoverability instrumentation and compute benchmark.
+\item
+  \textbf{Pre-registration / Protocol v1.0} --- frozen main-run decisions after pilot evidence and external review.
+\item
+  \textbf{Empirical Results Paper} --- results regardless of outcome.
+\item
+  \textbf{Machine-readable experiment ledger} --- conditions, checkpoints, masks, seeds and decision status.
+\item
+  \textbf{Article 201 / outreach record} --- separate public record of methodological outreach, with contact explicitly distinguished from endorsement.
+\end{enumerate}

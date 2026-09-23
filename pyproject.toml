@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wdfg"
+version = "0.1.0"
+description = "Pre-results research software for Where Does the Function Go?"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["jsonschema==4.10.3"]
+license = {text = "MIT"}
+authors = [{name = "Dennis Hedegreen"}]
+
+[project.optional-dependencies]
+test = ["numpy==2.4.4"]
+
+[project.scripts]
+wdfg = "wdfg.__main__:main"
+
+[project.urls]
+Repository = "https://github.com/DennisHedegreen/where-does-the-function-go"
+Article = "https://hedegreenresearch.com/articles/where-does-the-function-go/"
+
+[tool.setuptools.packages.find]
+include = ["wdfg"]
+
+[tool.setuptools.package-data]
+wdfg = ["resources/*.json", "resources/schemas/*.json", "resources/upstream/*.json", "resources/upstream/h-neurons/*", "resources/upstream/h-neurons/scripts/*.py"]

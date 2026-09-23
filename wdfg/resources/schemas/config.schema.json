@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_kind",
+    "data_kind",
+    "stage",
+    "protocol_sha256",
+    "package_manifest_sha256",
+    "freeze_status",
+    "open_freezes",
+    "model_revision",
+    "tokenizer_revision",
+    "source_commit",
+    "dataset_sha256",
+    "seed",
+    "scientific_parameters"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "wdfg.config/0.1"
+    },
+    "run_kind": {
+      "enum": [
+        "fixture",
+        "pilot",
+        "result"
+      ]
+    },
+    "data_kind": {
+      "enum": [
+        "synthetic",
+        "empirical"
+      ]
+    },
+    "stage": {
+      "enum": [
+        "P1",
+        "P2",
+        "P3",
+        "P4"
+      ]
+    },
+    "protocol_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "package_manifest_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "freeze_status": {
+      "enum": [
+        "open",
+        "frozen"
+      ]
+    },
+    "open_freezes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "model_revision": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tokenizer_revision": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_commit": {
+      "type": "string",
+      "minLength": 1
+    },
+    "dataset_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "seed": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "scientific_parameters": {
+      "type": "object",
+      "minProperties": 1
+    }
+  }
+}

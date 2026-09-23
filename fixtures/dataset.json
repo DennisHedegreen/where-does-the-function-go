@@ -1,0 +1,16 @@
+[
+  {
+    "example_id": "fixture-a",
+    "split": "train",
+    "prompt": "Synthetic question A",
+    "parameters": {},
+    "ground_truth": "A"
+  },
+  {
+    "example_id": "fixture-b",
+    "split": "test",
+    "prompt": "Synthetic question B",
+    "parameters": {},
+    "ground_truth": "B"
+  }
+]

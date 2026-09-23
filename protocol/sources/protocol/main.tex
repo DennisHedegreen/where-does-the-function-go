@@ -1,0 +1,198 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{libertinus}
+\usepackage[scaled=.94]{sourcesanspro}
+\usepackage{microtype}
+\usepackage[a4paper,top=23mm,bottom=24mm,left=25mm,right=25mm,headheight=15pt]{geometry}
+\usepackage{parskip}
+\usepackage{multicol}
+\setlength{\parindent}{0pt}
+\usepackage{xcolor}
+\definecolor{hrgreen}{HTML}{7DB87A}
+\definecolor{hrrust}{HTML}{B0603A}
+\definecolor{hrink}{HTML}{202622}
+\definecolor{hrmuted}{HTML}{667068}
+\definecolor{hrsoft}{HTML}{F4F6F2}
+\usepackage{graphicx}
+\usepackage{booktabs,longtable,tabularx,array}
+\usepackage{enumitem}
+\setlist{itemsep=2pt,topsep=5pt}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,calc,fit}
+\usepackage[most]{tcolorbox}
+\tcbset{camelotbox/.style={enhanced,breakable,colback=hrsoft,colframe=hrgreen!70!black,boxrule=.7pt,arc=2pt,left=3mm,right=3mm,top=2.5mm,bottom=2.5mm,fonttitle=\sffamily\bfseries,coltitle=hrink}}
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\sffamily\color{hrink}}{\thesection}{.7em}{}
+\titleformat{\subsection}{\large\bfseries\sffamily\color{hrink}}{\thesubsection}{.7em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\sffamily\color{hrink}}{\thesubsubsection}{.7em}{}
+\titlespacing*{\section}{0pt}{1.8em}{.65em}
+\titlespacing*{\subsection}{0pt}{1.3em}{.45em}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\sffamily\footnotesize Where Does the Function Go?}
+\fancyhead[R]{\sffamily\footnotesize Hedegreen Research · MI-001}
+\fancyfoot[C]{\sffamily\footnotesize \thepage}
+\renewcommand{\headrulewidth}{0.25pt}
+\usepackage{xurl}
+\usepackage[colorlinks=true,linkcolor=hrgreen!45!black,citecolor=hrrust!70!black,urlcolor=hrrust!70!black]{hyperref}
+\hypersetup{pdftitle={Where Does the Function Go?},pdfauthor={Dennis Hedegreen},pdfsubject={Mechanistic interpretability research proposal},pdfkeywords={mechanistic interpretability, H-Neurons, J-space, functional reconstitution, recoverability}}
+\usepackage{bookmark}
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily\footnotesize,breaklines=true,columns=fullflexible,frame=single,rulecolor=\color{hrgreen!40},backgroundcolor=\color{hrsoft},showstringspaces=false}
+\usepackage{fvextra}
+\usepackage{csquotes}
+\usepackage[backend=biber,style=authoryear,maxcitenames=2,maxbibnames=99,doi=true,url=true,isbn=false]{biblatex}
+\addbibresource{references.bib}
+\setlength{\bibitemsep}{0.55\baselineskip}
+\usepackage{caption}
+\captionsetup{font=small,labelfont={bf,sf},textfont=it}
+\usepackage{etoolbox}
+\AtBeginEnvironment{longtable}{\small}
+\renewcommand{\arraystretch}{1.15}
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\providecommand{\passthrough}[1]{#1}
+\newcommand{\statuspill}[1]{\tcbox[on line,colback=hrgreen!10,colframe=hrgreen!60!black,boxrule=.5pt,arc=1.5pt,left=1mm,right=1mm,top=.4mm,bottom=.4mm]{\sffamily\scriptsize\bfseries #1}}
+\newcommand{\metarow}[2]{\textsf{\footnotesize\textbf{#1}} & \footnotesize #2 \\\addlinespace[1.5pt]}
+\begin{document}
+
+% Cover
+\begin{titlepage}
+\color{hrink}
+\vspace*{5mm}
+{\sffamily\small\bfseries\color{hrgreen!55!black}\MakeUppercase{Hedegreen Research / Camelot}}\hfill{\sffamily\small\color{hrmuted} MODEL INTERNALS · MI-001}
+\vspace{24mm}
+
+{\sffamily\fontsize{31}{34}\selectfont\bfseries\color{hrink} Where Does the Function Go?\par}
+\vspace{5mm}
+{\fontsize{15}{19}\selectfont\color{hrink} A Research Proposal for Functional Reconstitution and\\Pre-Commitment Recoverability in Language Models\par}
+\vspace{8mm}
+{\color{hrgreen}\rule{\textwidth}{1.2pt}}
+\vspace{11mm}
+
+{\large\itshape\color{hrink} A detectable signal is not automatically the mechanism that produced the behaviour.\par}
+\vfill
+\centering
+\input{figures/cover_flow.tex}
+\vfill
+\raggedright
+\begin{tabular}{@{}p{31mm}p{110mm}@{}}
+\metarow{Author}{Dennis Hedegreen}
+\metarow{Publisher}{Hedegreen Research}
+\metarow{Date}{21 September 2026}
+\metarow{Issue}{MI-001}
+\metarow{Version}{v0.8 release candidate}
+\metarow{DOI}{Pending}
+\metarow{Contact}{contact@hedegreenresearch.com}
+\metarow{Status}{Working paper — research proposal / pre-results}
+\metarow{Companion}{\href{https://hedegreenresearch.com/articles/where-does-the-function-go/}{Article 200: \emph{Where Does the Function Go?}}}
+\end{tabular}
+\end{titlepage}
+\color{hrink}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\section*{Abstract}
+Mechanistic interpretability frequently identifies internal model components whose activity predicts or causally affects a target behaviour. Such localization results are informative, but they do not by themselves establish that the identified component is the unique or necessary implementation of the function. Large language models may contain redundant routes, distributed representations, or mechanisms that reorganize under further optimization.
+
+This proposal develops two connected experimental programmes.
+
+The first tests \textbf{functional reconstitution}. Starting from hallucination-associated H-Neurons reported by Gao et al.~(2025), the experiment asks whether a behavioural function that is selectively disrupted by persistent neuron-level constraints can recover during continued optimization through a new internal implementation. Version 0.6 strengthens the redundancy test further: candidate backups are measured conditionally at time zero, before adaptation, and later outcomes are separated into pre-existing self-repair, adaptive amplification of a weak backup, distributed redistribution, restricted-subspace compensation, and de novo or near-null reconstitution. The strongest label is reserved for recovery that cannot already be explained by a conditionally causal backup at time zero.
+
+The second programme tests \textbf{pre-commitment recoverability}. Rather than asking whether a model ``knows'' that an answer is wrong, the proposal asks whether hidden state before commitment predicts whether the model's own continuation distribution still assigns meaningful probability to a verified correction. Natural-support continuation with termination allowed remains primary, but version 0.6 adds a one-token termination-barrier control so stopping policy can be separated from post-stop recoverability. Forced-compute continuation with termination constrained is retained only as a separate secondary intervention. Recoverability is compared against simpler confidence, prompt-only and residual-stream baselines. J-space representations exposed by the Jacobian lens remain one candidate explanatory level, not a privileged assumption.
+
+A later bridge experiment tests whether local H-Neuron-associated mechanisms and distributed J-space-like states are causally coupled. A smaller proposition-substitution task is retained as a controlled model organism for self-monitoring failures. Version 0.7 also adds an optional downstream state-transfer branch inspired by Cache-to-Cache communication: if a source model fails, can a separate receiver extract task-relevant information from the source model's KV-cache that is not recovered from the same visible text alone? This branch is explicitly separated from the core recoverability claim.
+
+The proposal is intentionally pre-results. It defines targets, controls, decision rules, failure modes and compute gates before substantive adaptation runs are conducted.
+
+\vspace{3mm}
+\textbf{Keywords:} mechanistic interpretability; large language models; neuron localization; H-Neurons; J-space; causal intervention; model adaptation; recoverability.
+
+\begin{tcolorbox}[camelotbox,title={Preferred citation}]
+Hedegreen, Dennis. 2026. \emph{Where Does the Function Go? A Research Proposal for Functional Reconstitution and Pre-Commitment Recoverability in Language Models}. Hedegreen Research Working Paper, MI-001, v0.8 release candidate. DOI pending.
+\end{tcolorbox}
+
+\begin{tcolorbox}[camelotbox,title={Companion article}]
+Public-facing companion: \href{https://hedegreenresearch.com/articles/where-does-the-function-go/}{Article 200, \emph{Where Does the Function Go?}}. The article gives the readable research narrative; this working paper carries the current protocol, controls, decision rules and implementation boundaries.
+\end{tcolorbox}
+
+\begin{tcolorbox}[camelotbox,title={Protocol revision note -- v0.8}]
+Version 0.8 corrects only the layout of Figure 1. The v0.7 research protocol and all scientific claims are unchanged.
+
+
+This release preserves the v0.6 adversarial-review revisions and adds Cache-to-Cache (C2C) as a bounded downstream state-transfer test. The new branch asks whether a failed model's internal KV-cache can improve a separate receiver beyond the same visible text, while treating the cache fuser as a potential confound that must be trained and frozen on disjoint data. C2C is not used as evidence for J-space, recoverability, consciousness, or self-knowledge. No empirical result is added by this revision.
+\end{tcolorbox}
+
+\clearpage
+\section*{How to read this paper}
+\addcontentsline{toc}{section}{How to read this paper}
+This is a pre-results research proposal. It does not claim that functional reconstitution occurs, that H-Neurons form a universal hallucination circuit, that recoverability is equivalent to ``knowing'' an answer is wrong, or that J-space establishes consciousness. The paper specifies experiments, gates, controls and implementation requirements that must survive before stronger claims are available.
+
+\section*{What this proposal tests}
+\addcontentsline{toc}{section}{What this proposal tests}
+The proposal asks two primary empirical questions. First, if a selectively causal internal locus is kept persistently unavailable while optimization continues, can the affected behaviour return through a new selectively causal implementation? Second, before a model commits to an incorrect or incomplete answer, does its hidden state predict whether bounded additional computation can rescue the trajectory beyond simpler confidence signals? A later bridge experiment tests whether local H-Neuron-associated mechanisms and distributed J-space-like states are causally related.
+
+\clearpage
+\section*{The Proposal in Two Minutes}
+\addcontentsline{toc}{section}{The Proposal in Two Minutes}
+\begin{multicols}{2}
+\textbf{The localization problem.} A neuron or direction can predict a behaviour without being the unique mechanism that implements it. The proposal separates predictive localization, causal contribution, functional necessity, and implementation identity.
+
+\textbf{Functional reconstitution.} H-Neurons are first replicated and causally tested. If a selective locus survives Gate 0, it is kept persistently unavailable while the rest of the model is allowed to adapt. A strong reconstitution claim requires R0--R4.
+
+\textbf{Redundancy before learning.} Alternative routes are tested conditionally immediately after masking and before adaptation. A strong de novo-reconstitution claim requires that later recovery cannot already be explained by a conditionally causal backup at time zero. Weak backups that grow during learning are classified separately as adaptive amplification.
+
+\columnbreak
+
+\textbf{Recoverability, not ``knowing''.} The primary question is whether the model's own continuation distribution, from the exact pre-stop prefix with termination still allowed, contains probability mass leading to verified correction. Forced continuation is a separate secondary intervention, not the definition of recoverability.
+
+\textbf{J-space is a candidate.} J-space is tested as one distributed explanatory level. It receives no privilege unless it adds predictive or causal value beyond simpler residual-stream and confidence features.
+
+\textbf{Compute comes last.} Replication, mask integrity, time-zero mapping, recoverability instrumentation, and external methodological attack come before substantive constrained adaptation. The proposal asks for the cheapest experiment capable of falsifying the programme.
+\end{multicols}
+
+\clearpage
+\tableofcontents
+\clearpage
+
+\input{sections/body.tex}
+
+\section{Conclusion}
+This proposal is built around a restraint: localization should not be allowed to become mechanism identity by default. The H-Neuron programme therefore moves from predictive signal to selective causal contribution, persistent constraint, a conditional time-zero backup audit, training-dependent recovery, representational change and selective causal dependence. The recoverability programme separates natural-support continuation from forced-compute continuation and moves from prediction to held-out causal intervention only if simpler baselines are insufficient. J-space is one candidate explanatory level, not a conclusion.
+
+The immediate task is intentionally cheaper than the eventual experiment. Replicate the starting signal. Validate the mask. Freeze the time-zero map. Build the recoverability dataset. Attack the design externally. Benchmark the compute. Only then run substantive constrained adaptation.
+
+If the programme fails at an early gate, that is a result about the question, not a reason to move the gate. If it survives, the central empirical test remains simple to state: constrain a selectively causal route, map the backups that become necessary immediately, let the system learn, and ask whether later recovery is explained by self-repair, amplification, diffusion, compensation or a genuinely new causal implementation.
+
+\section*{Data availability}
+\addcontentsline{toc}{section}{Data availability}
+No new empirical result dataset is reported in this pre-results release. Pilot datasets, deterministic synthetic task generators, split fingerprints and result-bearing artifacts are specified in the protocol and will be released with the pilot report where licensing permits.
+
+\section*{Code availability}
+\addcontentsline{toc}{section}{Code availability}
+This release includes an implementation contract, configuration schemas and a repository blueprint, but does not present pilot outputs as scientific results. Result-bearing code will be versioned against the protocol, with source-adapter commit hashes and run manifests preserved in the reproducibility package.
+
+\section*{Use of generative AI tools}
+\addcontentsline{toc}{section}{Use of generative AI tools}
+OpenAI ChatGPT (GPT-5.6 Sol) was used during research development for literature triage, structural editing, implementation-specification support, source checking support, and LaTeX build assistance. DeepSeek was used in two adversarial technical review rounds of the pre-results protocol; its criticisms were triaged individually rather than adopted as authority. Neither system was treated as an evidentiary source for scientific claims. Primary sources were checked separately where cited, and the human author remains responsible for the research questions, protocol decisions, interpretations, source selection and final text.
+
+\clearpage
+\appendix
+\section{Pilot Protocol}
+\input{appendices/pilot.tex}
+
+\section{Freeze Register}
+\input{appendices/freeze_register.tex}
+
+\section{Decision Ledger}
+\input{appendices/ledger.tex}
+
+\section{Implementation Contract}
+\input{appendices/implementation.tex}
+
+\clearpage
+\printbibliography[heading=bibintoc,title={References}]
+\end{document}

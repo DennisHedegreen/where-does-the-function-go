@@ -1,0 +1,157 @@
+{
+  "run_kind": "fixture",
+  "data_kind": "synthetic",
+  "t0": {
+    "run_kind": "fixture",
+    "lineage": {
+      "mask_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "dataset_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "protocol_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "model_revision": "fixture-only",
+      "run_id": "synthetic-t0-m3"
+    },
+    "schema": "wdfg.t0/1",
+    "scientific_status": "NOT_EVALUATED",
+    "development_parent": null,
+    "records": [
+      {
+        "candidate_id": "a",
+        "predictive_score": 0,
+        "marginal_effect": 0,
+        "conditional_effect": 0,
+        "contribution": 0,
+        "matched_rank": 1
+      },
+      {
+        "candidate_id": "b",
+        "predictive_score": 0,
+        "marginal_effect": 0,
+        "conditional_effect": 0,
+        "contribution": 0,
+        "matched_rank": 2
+      }
+    ]
+  },
+  "expected_t0_sha256": "82bca67aee6c01c74d1994d698e303b2d773b263a2303344452019dee93c4f9b",
+  "design": {
+    "t0_sha256": "82bca67aee6c01c74d1994d698e303b2d773b263a2303344452019dee93c4f9b",
+    "frozen_before_adaptation": true,
+    "effect_method": "paired_binary_risk_difference",
+    "ci_method": "synthetic-paired-ci-fixture",
+    "power_method": "synthetic-paired-design-fixture",
+    "multiplicity_policy": "fixture-only-not-frozen-for-science",
+    "pool_selection_rule": "synthetic nested pools",
+    "pools": [
+      {
+        "pool_id": "small",
+        "candidate_ids": [
+          "a"
+        ]
+      },
+      {
+        "pool_id": "expanded",
+        "candidate_ids": [
+          "a",
+          "b"
+        ]
+      }
+    ]
+  },
+  "r1_loss": 0.05,
+  "gate0_pass": true,
+  "mask_integrity_pass": true,
+  "coax_reference": {
+    "status": "PASS",
+    "source_commit": "synthetic-reference-not-real-CoAx",
+    "tolerance_rule": "synthetic-only",
+    "design_sha256": "58390b1419462f263d732257c050084bd3bbccca339657735db264e1b29b768a"
+  },
+  "pools": [
+    {
+      "pool_id": "small",
+      "design_sha256": "58390b1419462f263d732257c050084bd3bbccca339657735db264e1b29b768a",
+      "candidates": [
+        {
+          "candidate_id": "a",
+          "paired_counts": {
+            "00": 490,
+            "01": 10,
+            "10": 10,
+            "11": 490
+          },
+          "ci": {
+            "low": -0.005,
+            "high": 0.005,
+            "confidence": 0.9,
+            "method": "synthetic-paired-ci-fixture"
+          },
+          "power": {
+            "value": 0.8,
+            "n": 1000,
+            "delta": 0.01,
+            "method": "synthetic-paired-design-fixture",
+            "design_sha256": "58390b1419462f263d732257c050084bd3bbccca339657735db264e1b29b768a"
+          }
+        }
+      ]
+    },
+    {
+      "pool_id": "expanded",
+      "design_sha256": "58390b1419462f263d732257c050084bd3bbccca339657735db264e1b29b768a",
+      "candidates": [
+        {
+          "candidate_id": "a",
+          "paired_counts": {
+            "00": 490,
+            "01": 10,
+            "10": 10,
+            "11": 490
+          },
+          "ci": {
+            "low": -0.005,
+            "high": 0.005,
+            "confidence": 0.9,
+            "method": "synthetic-paired-ci-fixture"
+          },
+          "power": {
+            "value": 0.8,
+            "n": 1000,
+            "delta": 0.01,
+            "method": "synthetic-paired-design-fixture",
+            "design_sha256": "58390b1419462f263d732257c050084bd3bbccca339657735db264e1b29b768a"
+          }
+        },
+        {
+          "candidate_id": "b",
+          "paired_counts": {
+            "00": 490,
+            "01": 10,
+            "10": 10,
+            "11": 490
+          },
+          "ci": {
+            "low": -0.005,
+            "high": 0.005,
+            "confidence": 0.9,
+            "method": "synthetic-paired-ci-fixture"
+          },
+          "power": {
+            "value": 0.8,
+            "n": 1000,
+            "delta": 0.01,
+            "method": "synthetic-paired-design-fixture",
+            "design_sha256": "58390b1419462f263d732257c050084bd3bbccca339657735db264e1b29b768a"
+          }
+        }
+      ]
+    }
+  ],
+  "reconstitution_gates": {
+    "R0": "UNRESOLVED",
+    "R1": "UNRESOLVED",
+    "R2": "UNRESOLVED",
+    "R3": "UNRESOLVED",
+    "R4": "UNRESOLVED",
+    "cross_seed_replication": "UNRESOLVED"
+  }
+}

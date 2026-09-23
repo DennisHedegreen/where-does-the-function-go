@@ -1,0 +1,81 @@
+{
+  "schema": "wdfg.public-protocol/1",
+  "version": "0.2-public.1",
+  "files": [
+    {
+      "path": "ACCEPTANCE.md",
+      "bytes": 2592,
+      "sha256": "3f2591efe2aff4c61c86aa60c65e3bfa59a86cb44123612d3bc1f278d6d13930"
+    },
+    {
+      "path": "DISCREPANCIES.md",
+      "bytes": 2348,
+      "sha256": "2997f76dbc87da538400f68fdf1cdae2e60d731c4642c70cd61753e3c48ea0da"
+    },
+    {
+      "path": "FREEZE_REGISTER.md",
+      "bytes": 2483,
+      "sha256": "2c7606bd77205ebfc69cdf20959002ee1577691a85aea930484b11382c8ef185"
+    },
+    {
+      "path": "MILESTONES.md",
+      "bytes": 2924,
+      "sha256": "bae5a301cc542f3a77df0ee7173ef1823dbce5e979cad0224f2de7b04bc05761"
+    },
+    {
+      "path": "PROTOCOL_CONTRACT.md",
+      "bytes": 6741,
+      "sha256": "10414a46cbf90ef6edd0ccea136dd89b1e4997b15d3bbf831703a5bb1f4abd89"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1121,
+      "sha256": "b69b9b6234e4c977bb88add6794d4480106ca1876843d5ba437664f905f434d6"
+    },
+    {
+      "path": "sources/article-v1.1.md",
+      "bytes": 35484,
+      "sha256": "2395c73162a9ce17325686cb72b5894eac3abf9d15cb6c477652558791a21017"
+    },
+    {
+      "path": "sources/camelot-mi001-v0.8.pdf",
+      "bytes": 713482,
+      "sha256": "540996a0b3f5615aed8f97b979df8a5ed30255f4f26238116f97994dc2b0d94e"
+    },
+    {
+      "path": "sources/protocol/appendices/freeze_register.tex",
+      "bytes": 3147,
+      "sha256": "8cbdaaae6dc13fe72abe5a776e41ed47b1c19dfda3c81c3011e982be4c98affe"
+    },
+    {
+      "path": "sources/protocol/appendices/implementation.tex",
+      "bytes": 12009,
+      "sha256": "c465d26bcc076d592930cc7e2d23143eab33e7763dc89e436600f04072b51932"
+    },
+    {
+      "path": "sources/protocol/appendices/ledger.tex",
+      "bytes": 2808,
+      "sha256": "adc51a6603539e541b1f8b2477c590db917a51246d835beba7d580adc7372f1b"
+    },
+    {
+      "path": "sources/protocol/appendices/pilot.tex",
+      "bytes": 3636,
+      "sha256": "84c3b37c9690ffd19511f8c898ffbca71901e12fee443599e85ed9295b013e8f"
+    },
+    {
+      "path": "sources/protocol/main.tex",
+      "bytes": 15257,
+      "sha256": "078ff71b0fb53ffb9e94c0a48623e94ff08bbc4be090581eece9ce8b75e4d517"
+    },
+    {
+      "path": "sources/protocol/references.bib",
+      "bytes": 5196,
+      "sha256": "9abb66d968072e74dc550c70861bb9f874323a76362fdcf6a231fe71bf164bde"
+    },
+    {
+      "path": "sources/protocol/sections/body.tex",
+      "bytes": 68682,
+      "sha256": "bcc05cbbd0294f8960924749fd92aea684f27512f14c632742984ae67d6405ef"
+    }
+  ]
+}

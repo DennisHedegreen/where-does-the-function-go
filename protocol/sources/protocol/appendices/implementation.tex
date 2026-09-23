@@ -1,0 +1,511 @@
+
+\textbf{Status:} Normative implementation companion to Working Paper v0.3\\
+\textbf{Date:} 21 September 2026
+
+\subsection{Repository blueprint}\label{repository-blueprint}
+
+\begin{lstlisting}
+where-does-the-function-go/
++--- pyproject.toml
++--- uv.lock / requirements lock
++--- README.md
++--- configs/
+|   +--- p1_h_neuron.yaml
+|   +--- p2_mask_t0.yaml
+|   `--- p3_recoverability.yaml
++--- schemas/
+|   +--- run_manifest.schema.json
+|   +--- mask.schema.json
+|   +--- metric.schema.json
+|   `--- trajectory.schema.json
++--- src/wdfg/
+|   +--- cli.py
+|   +--- config.py
+|   +--- provenance.py
+|   +--- datasets/
+|   |   +--- h_neuron.py
+|   |   `--- synthetic_recoverability.py
+|   +--- models/
+|   |   +--- load.py
+|   |   `--- llama_contract.py
+|   +--- source_adapters/
+|   |   +--- h_neurons.py
+|   |   `--- jacobian_lens.py
+|   +--- interventions/
+|   |   +--- mlp_mask.py
+|   |   `--- activation_scale.py
+|   +--- capture/
+|   |   +--- residual.py
+|   |   `--- logits.py
+|   +--- stages/
+|   |   +--- p1_replication.py
+|   |   +--- p2_time_zero.py
+|   |   `--- p3_recoverability.py
+|   +--- scoring/
+|   |   +--- faith_eval.py
+|   |   +--- synthetic.py
+|   |   `--- gate0.py
+|   `--- io/
+|       +--- jsonl.py
+|       `--- artifacts.py
+`--- tests/
+    +--- test_llama_contract.py
+    +--- test_mask.py
+    +--- test_gate0.py
+    +--- test_t0_immutable.py
+    +--- test_pre_stop.py
+    +--- test_continuation_seed.py
+    `--- test_synthetic_parser.py
+\end{lstlisting}
+
+\subsection{Llama mask contract}\label{llama-mask-contract}
+
+Expected target module per transformer block:
+
+\passthrough{\lstinline!model.model.layers[i].mlp!}
+
+Expected projections:
+
+\begin{itemize}
+\tightlist
+\item
+  \passthrough{\lstinline!gate\_proj!}
+\item
+  \passthrough{\lstinline!up\_proj!}
+\item
+  \passthrough{\lstinline!down\_proj!}
+\end{itemize}
+
+Expected conceptual forward:
+
+\begin{lstlisting}[language=Python]
+u = act_fn(gate_proj(x)) * up_proj(x)
+y = down_proj(u)
+\end{lstlisting}
+
+Intervention point: input to \passthrough{\lstinline!down\_proj!}.
+
+Preferred mechanism:
+
+\begin{lstlisting}[language=Python]
+handle = mlp.down_proj.register_forward_pre_hook(mask_pre_hook)
+\end{lstlisting}
+
+Conceptual hook:
+
+\begin{lstlisting}[language=Python]
+def mask_pre_hook(module, args):
+    (u,) = args
+    mask = registry.mask_for_layer(layer_idx, device=u.device, dtype=u.dtype)
+    return (u * mask,)
+\end{lstlisting}
+
+The actual code must handle the library's exact hook signature and verify shape.
+
+Mask tensor shape should broadcast to:
+
+\passthrough{\lstinline![batch, sequence, intermediate\_size]!}
+
+Recommended stored mask shape:
+
+\passthrough{\lstinline![intermediate\_size]!}
+
+Do not mutate \passthrough{\lstinline!down\_proj.weight!} to impose the persistent constraint.
+
+\subsection{Model contract checks}\label{model-contract-checks}
+
+At startup:
+
+\begin{itemize}
+\tightlist
+\item
+  resolve \passthrough{\lstinline!intermediate\_size!};
+\item
+  verify each requested neuron index is in range;
+\item
+  verify target layer exists;
+\item
+  verify the MLP exposes the expected projections;
+\item
+  run a one-example identity-mask test;
+\item
+  abort if contract fails.
+\end{itemize}
+
+Pilot runs disable \passthrough{\lstinline!torch.compile!}.
+
+\subsection{Source adapter rule}\label{source-adapter-rule}
+
+P1 H-Neuron identification calls a pinned upstream implementation where possible.
+
+Adapter outputs normalized records:
+
+\begin{lstlisting}
+example_id
+split
+layer_index
+neuron_index
+cett_score
+classifier_weight
+is_h_neuron
+source_commit
+\end{lstlisting}
+
+A local optimized implementation is not allowed to replace the source adapter until equivalence fixtures pass.
+
+\subsection{Run commands}\label{run-commands}
+
+Target CLI surface:
+
+\begin{lstlisting}
+wdfg p1 identify --config configs/p1_h_neuron.yaml
+wdfg p1 causal   --config configs/p1_h_neuron.yaml --parent-run <id>
+wdfg p2 t0       --config configs/p2_mask_t0.yaml --mask <mask.json>
+wdfg p3 collect  --config configs/p3_recoverability.yaml
+wdfg p3 probe    --config configs/p3_recoverability.yaml --parent-run <id>
+wdfg validate-run <run_dir>
+\end{lstlisting}
+
+Commands are illustrative API requirements; exact CLI framework is implementation choice.
+
+\subsection{No implicit defaults for scientific parameters}\label{no-implicit-defaults-for-scientific-parameters}
+
+The program may have software defaults for paths.
+
+It must not silently default any scientific parameter that affects the protocol.
+
+Required config keys must fail validation if omitted.
+
+Examples:
+
+\begin{itemize}
+\tightlist
+\item
+  model revision;
+\item
+  seed;
+\item
+  coefficient threshold;
+\item
+  intervention alpha;
+\item
+  sample IDs/fingerprint;
+\item
+  K;
+\item
+  B;
+\item
+  decoding parameters.
+\end{itemize}
+
+\subsection{P1 outputs}\label{p1-outputs}
+
+Required:
+
+\begin{lstlisting}
+artifacts/h_neurons.json
+artifacts/candidate_scores.parquet
+artifacts/faith_eval_predictions.parquet
+artifacts/control_predictions.parquet
+artifacts/gate0_metrics.json
+\end{lstlisting}
+
+\passthrough{\lstinline!h\_neurons.json!} is converted to a canonical mask artifact only after Gate 0 evaluation.
+
+\subsection{P2 outputs}\label{p2-outputs}
+
+Required:
+
+\begin{lstlisting}
+artifacts/mask.json
+artifacts/mask_audit.json
+artifacts/t0_candidate_loci.parquet
+artifacts/t0_causal_effects.parquet
+\end{lstlisting}
+
+\passthrough{\lstinline!t0\_*!} files are write-once.
+
+The software should refuse overwrite unless an explicit \passthrough{\lstinline!--development-override!} flag is present. Such a run is automatically marked non-result-bearing.
+
+\subsection{P3 natural trajectory representation}\label{p3-natural-trajectory-representation}
+
+Each natural trajectory record contains:
+
+\begin{itemize}
+\tightlist
+\item
+  example ID;
+\item
+  task family;
+\item
+  task parameters;
+\item
+  prompt hash;
+\item
+  prompt token IDs;
+\item
+  natural output token IDs;
+\item
+  parsed natural answer;
+\item
+  correctness;
+\item
+  pre-stop prefix token IDs;
+\item
+  EOS token ID;
+\item
+  stop-token logit/probability;
+\item
+  top-1 token ID;
+\item
+  entropy;
+\item
+  residual artifact pointer;
+\item
+  manifest run ID.
+\end{itemize}
+
+Large residual tensors are stored outside JSONL.
+
+\subsection{P3 continuation representation}\label{p3-continuation-representation}
+
+Each continuation record contains:
+
+\begin{itemize}
+\tightlist
+\item
+  parent example ID;
+\item
+  intervention ID (\passthrough{\lstinline!I0!}, \passthrough{\lstinline!I1!}, or \passthrough{\lstinline!I2!});
+\item
+  k index;
+\item
+  deterministic sampling seed;
+\item
+  generated token IDs;
+\item
+  generated text artifact pointer or text;
+\item
+  last post-continuation \passthrough{\lstinline!FINAL:!} parse;
+\item
+  rescue boolean;
+\item
+  parse status.
+\end{itemize}
+
+\subsection{P3 continuation regimes}\label{p3-continuation-regimes}
+
+The implementation must preserve three distinct continuation regimes:
+
+\begin{itemize}
+\tightlist
+\item \passthrough{\lstinline!I0!}: natural-support continuation from the exact pre-stop prefix, EOS allowed.
+\item \passthrough{\lstinline!I1!}: forced-compute continuation, EOS constrained for the configured window.
+\item \passthrough{\lstinline!I2!}: procedural re-check with the fixed versioned instruction and no new task facts.
+\end{itemize}
+
+The run manifest records the regime explicitly. Analysis code must not pool them into one rescue probability by default.
+
+The continuation count \passthrough{\lstinline!K!} is not hard-coded in v0.6; config validation requires an explicitly frozen value from the post-review precision/cost register.
+
+\subsection{Synthetic generator contract}\label{synthetic-generator-contract}
+
+Generator functions must return:
+
+\begin{lstlisting}[language=Python]
+{
+  "example_id": "...",
+  "family": "integer_arithmetic",
+  "parameters": {...},
+  "prompt": "... FINAL: <answer> ...",
+  "ground_truth": "...",
+  "checker_version": "..."
+}
+\end{lstlisting}
+
+Task difficulty parameters are part of the dataset fingerprint.
+
+Train/val/test generator seeds must not overlap.
+
+\subsection{Dataset fingerprint}\label{dataset-fingerprint}
+
+For each dataset/split, fingerprint:
+
+\begin{itemize}
+\tightlist
+\item
+  canonical list of example IDs;
+\item
+  normalized prompt text;
+\item
+  task parameters if generated;
+\item
+  ground-truth labels;
+\item
+  preprocessing version.
+\end{itemize}
+
+Store SHA-256 of the canonical JSON serialization.
+
+\subsection{Gate 0 evaluator}\label{gate-0-evaluator}
+
+Pure function inputs:
+
+\begin{itemize}
+\tightlist
+\item
+  baseline FaithEval predictions;
+\item
+  H hard suppression predictions;
+\item
+  contribution-matched control predictions;
+\item
+  PPL metrics;
+\item
+  held-out classifier metrics.
+\end{itemize}
+
+Output:
+
+\begin{lstlisting}
+{
+  "G0_A": "PASS|FAIL",
+  "G0_B": "PASS|FAIL",
+  "G0_C": "PASS|FAIL",
+  "G0_D": "PASS|FAIL",
+  "overall": "PASS|FAIL|AMBIGUOUS",
+  "evidence": {...}
+}
+\end{lstlisting}
+
+No manual override in a result-bearing run.
+
+\subsection{Integrity checks for pre-stop recomputation}\label{integrity-checks-for-pre-stop-recomputation}
+
+Natural-run pre-stop record stores:
+
+\begin{itemize}
+\tightlist
+\item
+  pre-stop prefix;
+\item
+  original top-1 token;
+\item
+  original EOS probability;
+\item
+  original logits hash if retained.
+\end{itemize}
+
+Recompute from prefix.
+
+Pass if:
+
+\begin{itemize}
+\tightlist
+\item
+  top-1 token is identical;
+\item
+  absolute EOS-probability difference \textless= configured tolerance.
+\end{itemize}
+
+Suggested pilot tolerance: \passthrough{\lstinline!1e-4!} after probability computation in float32.
+
+If fail:
+
+\begin{itemize}
+\tightlist
+\item
+  record \passthrough{\lstinline!FAIL\_DATA\_INTEGRITY!} for that example;
+\item
+  exclude from recoverability labels;
+\item
+  do not silently continue.
+\end{itemize}
+
+\subsection{Hidden-state capture}\label{hidden-state-capture}
+
+Default:
+
+\begin{itemize}
+\tightlist
+\item
+  last-prefix-token residual state at every transformer layer;
+\item
+  cast/storage dtype recorded;
+\item
+  stored using \passthrough{\lstinline!safetensors!} or another deterministic tensor format;
+\item
+  index file maps example ID -\textgreater{} tensor artifact.
+\end{itemize}
+
+Do not serialize arbitrary Python pickle objects for scientific artifacts.
+
+\subsection{J-lens adapter}\label{j-lens-adapter}
+
+J-lens is optional in first P3 pass.
+
+Adapter must not change the underlying P3 trajectory collection.
+
+Feature extraction runs as a downstream analysis against frozen trajectory IDs.
+
+This ensures a failed J-lens integration cannot alter the baseline recoverability dataset.
+
+\subsection{Concurrency}\label{concurrency}
+
+Parallelism must not change random results.
+
+Continuation seed derivation uses example/intervention/k identity, not global RNG order.
+
+All stage outputs are sorted by stable example ID before hashing.
+
+\subsection{Error handling}\label{error-handling}
+
+Scientific failures and software failures are separate.
+
+Examples:
+
+\begin{itemize}
+\tightlist
+\item
+  Gate 0 fail = scientific/protocol result.
+\item
+  Missing mask coordinate = implementation failure.
+\item
+  Dataset hash mismatch = data-integrity failure.
+\item
+  CUDA OOM = hardware failure.
+\end{itemize}
+
+Only the first category contributes directly to scientific interpretation.
+
+\subsection{Security / privacy}\label{security-privacy}
+
+Pilot datasets should contain no personal or sensitive user data.
+
+Prompt artifacts should be inspectable and releasable where licensing permits.
+
+\subsection{Acceptance criterion for implementation v0.1}\label{acceptance-criterion-for-implementation-v0.1}
+
+The implementation is ready for P1 result-bearing execution when:
+
+\begin{itemize}
+\tightlist
+\item
+  schema validation passes;
+\item
+  unit tests pass;
+\item
+  identity mask matches baseline;
+\item
+  targeted mask zeros intended coordinates;
+\item
+  H-Neuron source adapter fixture passes;
+\item
+  dataset fingerprint is stable across reruns;
+\item
+  run manifest is complete;
+\item
+  Gate 0 evaluator passes fixture tests;
+\item
+  dirty worktree is false.
+\end{itemize}

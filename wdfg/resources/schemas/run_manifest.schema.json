@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "M0 validation receipt skeleton, not an empirical run manifest. Later stages must add hardware, code commit, parents and empirical artifact evidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_kind",
+    "protocol_sha256",
+    "package_manifest_sha256",
+    "config_sha256",
+    "freeze_status",
+    "open_freezes",
+    "validation_status",
+    "scientific_status",
+    "execution_authorized",
+    "validated_payload_files"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "wdfg.validation-receipt/0.1"
+    },
+    "run_kind": {
+      "enum": [
+        "fixture",
+        "pilot",
+        "result"
+      ]
+    },
+    "protocol_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "package_manifest_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "config_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "freeze_status": {
+      "enum": [
+        "open",
+        "frozen"
+      ]
+    },
+    "open_freezes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "validation_status": {
+      "const": "PASS"
+    },
+    "scientific_status": {
+      "const": "NOT_EVALUATED"
+    },
+    "execution_authorized": {
+      "const": false
+    },
+    "validated_payload_files": {
+      "type": "integer",
+      "minimum": 1
+    }
+  }
+}

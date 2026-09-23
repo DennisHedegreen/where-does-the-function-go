@@ -1,0 +1,37 @@
+\begin{longtable}{@{}p{0.20\textwidth}p{0.15\textwidth}p{0.25\textwidth}p{0.27\textwidth}@{}}
+\caption{v0.6 freeze register. REVIEW-REOPENED items must be re-frozen before the corresponding result-bearing stage.}\label{tab:freeze-register}\\
+\toprule
+\textbf{Item} & \textbf{Status} & \textbf{Value} & \textbf{Change rule} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Item} & \textbf{Status} & \textbf{Value} & \textbf{Change rule} \\
+\midrule
+\endhead
+Primary H causal phenotype & PILOT-LOCKED & FaithEval Counterfactual Context & new protocol version \\
+H identification training set & PILOT-LOCKED & TriviaQA & new protocol version \\
+OOD diagnostics & PILOT-LOCKED & NQ-Open; BioASQ; NonExist diagnostic & new protocol version \\
+CETT thresholds & PILOT-LOCKED & 0.0005;0.001;0.002 primary 0.001 & new protocol version \\
+FaithEval H effect gate & PILOT-LOCKED & >=5 pp reduction vs baseline & compute-screening gate only \\
+Matched-control selectivity & PILOT-LOCKED & >=3 pp; bootstrap CI excludes 0 & compute-screening gate only \\
+PPL damage boundary & PILOT-LOCKED & <10\% relative increase & new protocol version \\
+Mask tolerance & PILOT-LOCKED & abs <=1e-7 & ledgered bug fix only \\
+Sparse-probe full pipeline & PILOT-LOCKED v0.6 & pinned upstream commit + exact source grid/solver/scaling/tolerance & new protocol version \\
+Probe stability reporting & PILOT-LOCKED v0.6 & >=10 resampled fits where feasible; selection frequency/Jaccard + causal-mask reproducibility & no arbitrary Jaccard cutoff \\
+B0 equivalence rule & PILOT-LOCKED v0.6 & delta=min(2 pp, 20\% of R1 loss); paired 90\% CI; >=80\% power required & new protocol version \\
+Conditional backup method & PILOT-LOCKED v0.6 & CoAx + reference validation + target candidate-pool expansion sensitivity & new protocol version \\
+Recoverability primary regime & PILOT-LOCKED v0.6 & I0 natural-support, EOS allowed & new protocol version \\
+Termination-barrier control & PILOT-LOCKED v0.6 & I0b: force one non-EOS token, then re-enable EOS & new protocol version \\
+Forced/procedural regimes & PILOT-LOCKED v0.6 & I1 secondary forced compute; I2 procedural robustness & new protocol version \\
+Recoverability K & TO FREEZE & smallest K meeting pre-specified NLL Monte Carlo SE criterion in 8/16/32, else expand & freeze before P3 \\
+Natural decoding & PILOT-LOCKED & temperature 0 & new protocol version \\
+Recoverability metric & PILOT-LOCKED v0.6 & held-out Bernoulli/hierarchical-binomial NLL/deviance & new protocol version \\
+J-space screen & REVIEW-REOPENED & TBD after revised baseline benchmark & freeze before J-space claim \\
+Full adaptation optimizer & MAIN-RUN-TBD & TBD & freeze after benchmark + human review \\
+Full adaptation LR & MAIN-RUN-TBD & TBD & freeze after benchmark + human review \\
+Full adaptation token budget & MAIN-RUN-TBD & TBD & freeze after benchmark + human review \\
+Checkpoint token counts & MAIN-RUN-TBD & log-spaced rule; exact counts TBD & freeze after benchmark \\
+Full adaptation seeds & MAIN-RUN-TBD & TBD & freeze after pilot variance \\
+R2/R3/R4 thresholds & MAIN-RUN-TBD & TBD & freeze before main run \\
+\bottomrule
+\end{longtable}
